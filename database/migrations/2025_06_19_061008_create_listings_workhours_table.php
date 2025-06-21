@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('listing', function (Blueprint $table) {
-            $table->id();
+        Schema::create('listings_workhours', function (Blueprint $table) {
+            $table->id()->unique();
+            $table->string('listing_id');
+            $table->integer('start');
+            $table->integer('end');
+            $table->string('timezone');
             $table->timestamps();
         });
     }
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('listing');
+        Schema::dropIfExists('listings_workhours');
     }
 };
