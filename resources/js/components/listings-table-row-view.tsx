@@ -197,70 +197,70 @@ export default function ListingsTableRowView({ row }: ListingsTableRowViewProps)
                         )}
 
                         {/* ADDITIONAL */}
-                        {row.additional_1 !== '' && (
+                        {row.additional_1 && (
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Additional 1:</span>
                                 <span className={`${contentStyle}`}>{row.additional_1}</span>
                             </div>
                         )}
-                        {row.additional_2 !== '' && (
+                        {row.additional_2 && (
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Additional 2:</span>
                                 <span className={`${contentStyle}`}>{row.additional_2}</span>
                             </div>
                         )}
-                        {row.additional_3 !== '' && (
+                        {row.additional_3 && (
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Additional 3:</span>
                                 <span className={`${contentStyle}`}>{row.additional_3}</span>
                             </div>
                         )}
-                        {row.additional_4 !== '' && (
+                        {row.additional_4 && (
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Additional 4:</span>
                                 <span className={`${contentStyle}`}>{row.additional_4}</span>
                             </div>
                         )}
-                        {row.additional_5 !== '' && (
+                        {row.additional_5 && (
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Additional 5:</span>
                                 <span className={`${contentStyle}`}>{row.additional_5}</span>
                             </div>
                         )}
-                        {row.additional_6 !== '' && (
+                        {row.additional_6 && (
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Additional 6:</span>
                                 <span className={`${contentStyle}`}>{row.additional_6}</span>
                             </div>
                         )}
-                        {row.additional_7 !== '' && (
+                        {row.additional_7 && (
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Additional 7:</span>
                                 <span className={`${contentStyle}`}>{row.additional_7}</span>
                             </div>
                         )}
-                        {row.additional_8 !== '' && (
+                        {row.additional_8 && (
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Additional 8:</span>
                                 <span className={`${contentStyle}`}>{row.additional_8}</span>
                             </div>
                         )}
-                        {row.additional_9 !== '' && (
+                        {row.additional_9 && (
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Additional 9:</span>
                                 <span className={`${contentStyle}`}>{row.additional_9}</span>
                             </div>
                         )}
-                        {row.additional_10 !== '' && (
+                        {row.additional_10 && (
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Additional 10:</span>

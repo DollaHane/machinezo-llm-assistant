@@ -175,6 +175,7 @@ class ListingsController extends Controller
 
     public function update(Request $request)
     {
+        Log::info($request->all());
         $listing_id = $request->header('listingId');
 
         // Returns status 422 if not valid
@@ -200,7 +201,16 @@ class ListingsController extends Controller
             'region' => 'required|string|min:3|max:255',
             'related_listing' => 'nullable|array',
             'hire_rental' => 'nullable|string|max:255',
-            'additional_*' => 'nullable|string|max:255',
+            'additional_1' => 'nullable|string|max:255',
+            'additional_2' => 'nullable|string|max:255',
+            'additional_3' => 'nullable|string|max:255',
+            'additional_4' => 'nullable|string|max:255',
+            'additional_5' => 'nullable|string|max:255',
+            'additional_6' => 'nullable|string|max:255',
+            'additional_7' => 'nullable|string|max:255',
+            'additional_8' => 'nullable|string|max:255',
+            'additional_9' => 'nullable|string|max:255',
+            'additional_10' => 'nullable|string|max:255',
         ]);
 
         try {
