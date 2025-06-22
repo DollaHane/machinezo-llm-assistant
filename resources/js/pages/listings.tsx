@@ -37,7 +37,6 @@ type Pagination = {
 };
 
 export default function Listings({ listings }: { listings: Pagination }) {
-    console.log(listings);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Listings" />

@@ -17,10 +17,6 @@ export function ListingsTable<TData, TValue>({ columns, data }: DataTableProps<T
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-    const [pagination, setPagination] = useState({
-        pageIndex: 0,
-        pageSize: 20,
-    });
 
     const table = useReactTable({
         data,
@@ -29,9 +25,6 @@ export function ListingsTable<TData, TValue>({ columns, data }: DataTableProps<T
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
         onColumnVisibilityChange: setColumnVisibility,
-        // getPaginationRowModel: getPaginationRowModel(),
-        // getFilteredRowModel: getFilteredRowModel(),
-        // getSortedRowModel: getSortedRowModel(),
         state: {
             sorting,
             columnFilters,

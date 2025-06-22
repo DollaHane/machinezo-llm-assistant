@@ -1,6 +1,6 @@
 'use client';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/Form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/text-area';
 import { toast } from '@/hooks/use-toast';
@@ -25,14 +25,8 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-type Tag = {
-    idx: number;
-    value: string;
-};
-
 export default function ListingUpdate({ listing }: { listing: Listing }) {
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-    const [disabled, setDisabled] = useState<boolean>(true);
 
     const form = useForm({
         resolver: zodResolver(updateValidation),
@@ -74,19 +68,19 @@ export default function ListingUpdate({ listing }: { listing: Listing }) {
     const errors = form.formState.errors;
     console.log('Form Errors:', errors);
 
-    // @ts-ignore
+    // @ts-expect-error
     const { fields: tagField, insert: tagInsert, remove: tagRemove } = useFieldArray({ control: form.control, name: 'tags' });
-    // @ts-ignore
+    // @ts-expect-error
     const { fields: photoField, insert: photoInsert, remove: photoRemove } = useFieldArray({ control: form.control, name: 'photo_gallery' });
     const {
         fields: attachmentsField,
         insert: attachmentsInsert,
         remove: attachmentsRemove,
-        // @ts-ignore
+        // @ts-expect-error
     } = useFieldArray({ control: form.control, name: 'attachments' });
-    // @ts-ignore
+    // @ts-expect-error
     const { fields: socialField, insert: socialInsert, remove: socialRemove } = useFieldArray({ control: form.control, name: 'social_networks' });
-    // @ts-ignore
+    // @ts-expect-error
     const { fields: relatedField, insert: relatedInsert, remove: relatedRemove } = useFieldArray({ control: form.control, name: 'related_listing' });
 
     if (tagField.length === 0) {
@@ -359,7 +353,6 @@ export default function ListingUpdate({ listing }: { listing: Listing }) {
                                     <FormItem>
                                         <FormLabel>Website:</FormLabel>
                                         <FormControl>
-                                            {/* @ts-ignore */}
                                             <Input {...field} />
                                         </FormControl>
                                         <FormMessage />
