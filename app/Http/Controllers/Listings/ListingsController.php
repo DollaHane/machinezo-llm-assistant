@@ -96,20 +96,16 @@ class ListingsController extends Controller
 
         $data = $validator->validated();
         $currentDate = now();
-        $insertData = [];
-
         DB::beginTransaction();
-
         try {
             foreach ($data as $row) {
-
                 $description = $this->generateLLMContent($row);
                 if (!$description) {
                     throw new \Exception('Failed to generate LLM content');
-                    return response()->json(['Message: ' => 'Failed to generate LLM content', 465]);
+                    return response()->json(['Message' => 'Failed to generate LLM content'], 465);
                 }
 
-                $insertData[] = [
+                $insertData = [
                     'title' => $row['title'],
                     'description' => $description,
                     'plant_category' => $row['plant_category'],
@@ -144,9 +140,45 @@ class ListingsController extends Controller
                     'created_at' => $currentDate,
                     'updated_at' => $currentDate,
                 ];
+
+                $id = DB::table('listings')->insertGetId($insertData);
+
+                $work_hours_data = [
+                    [
+                        'listing_id' => $id,
+                        'start' => 480,
+                        'end' => 1020,
+                        'timezone' => 'Europe/London',
+                    ],
+                    [
+                        'listing_id' => $id,
+                        'start' => 1920,
+                        'end' => 2460,
+                        'timezone' => 'Europe/London',
+                    ],
+                    [
+                        'listing_id' => $id,
+                        'start' => 3360,
+                        'end' => 3900,
+                        'timezone' => 'Europe/London',
+                    ],
+                    [
+                        'listing_id' => $id,
+                        'start' => 4800,
+                        'end' => 5340,
+                        'timezone' => 'Europe/London',
+                    ],
+                    [
+                        'listing_id' => $id,
+                        'start' => 6240,
+                        'end' => 6780,
+                        'timezone' => 'Europe/London',
+                    ],
+                ];
+
+                DB::table('listings_workhours')->insert($work_hours_data);
             }
 
-            DB::table('listings')->insert($insertData);
             DB::commit();
 
             return response()->json([
@@ -177,6 +209,7 @@ class ListingsController extends Controller
     {
         Log::info($request->all());
         $listing_id = $request->header('listingId');
+        $currentDate = now();
 
         // Returns status 422 if not valid
         $validated = $request->validate([

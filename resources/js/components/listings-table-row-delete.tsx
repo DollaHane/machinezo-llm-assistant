@@ -1,3 +1,14 @@
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
 import { useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
@@ -19,12 +30,26 @@ export default function ListingsTableRowDelete({ id }: { id: string }) {
         });
     };
     return (
-        <div>
-            <form onSubmit={handleSubmit}>
+        <AlertDialog>
+            <AlertDialogTrigger asChild>
                 <Button variant="destructive" className="w-full">
                     Delete
                 </Button>
-            </form>
-        </div>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>This action cannot be undone. This will permanently delete the listing.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <form onSubmit={handleSubmit}>
+                        <AlertDialogAction type="submit" className="w-full">
+                            Continue
+                        </AlertDialogAction>
+                    </form>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     );
 }
