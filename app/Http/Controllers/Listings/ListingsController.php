@@ -66,7 +66,7 @@ class ListingsController extends Controller
 
         $validator = Validator::make($request->json()->all(), [
             '*.title' => 'required|string|max:255',
-            '*.description' => 'required|string|max:1000',
+            '*.description' => 'required|string|max:2000',
             '*.plant_category' => 'required|string|max:255',
             '*.contact_email' => 'required|email|max:255',
             '*.phone_number' => 'required',
@@ -214,7 +214,7 @@ class ListingsController extends Controller
         // Returns status 422 if not valid
         $validated = $request->validate([
             'title' => 'required|string|min:3|max:255',
-            'description' => 'required|string|min:3|max:1000',
+            'description' => 'required|string|min:3|max:2000',
             'plant_category' => 'required|string|min:3|max:255',
             'contact_email' => 'required|email|min:3|max:255',
             'phone_number' => 'required|min:3|max:255',
@@ -294,7 +294,7 @@ class ListingsController extends Controller
                             . $row['description']
                             . '. Include relevant details from this data: '
                             . json_encode($row)
-                            . '. Note: phone numbers should be structured correctly and include area codes. The response must not exceed 255 characters, including spaces and punctuation.'
+                            . '. Note: phone numbers should be structured correctly and include area codes. The response must not exceed 2,000 characters, including spaces and punctuation.'
                     ],
                 ],
             ]);

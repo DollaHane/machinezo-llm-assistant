@@ -5,7 +5,7 @@ export const updateValidation = z.object({
     description: z
         .string()
         .min(3, { message: 'Must be at least 3 characters long' })
-        .max(1000, { message: 'Must be less than 1,000 characters long.' }),
+        .max(2000, { message: 'Must be less than 2,000 characters long.' }),
     plant_category: z
         .string()
         .min(3, { message: 'Must be at least 3 characters long' })
