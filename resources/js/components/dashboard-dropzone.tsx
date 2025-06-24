@@ -113,13 +113,13 @@ export default function DashboardDropzone() {
                     tags: row[12].split(',').map((item: string) => {
                         return item.trim();
                     }),
-                    company_logo: row[13],
+                    company_logo: row[13].split(',').map((item: string) => {
+                        return item.trim();
+                    }),
                     photo_gallery: row[14].split(',').map((item: string) => {
                         return item.trim();
                     }),
-                    attachments: row[15].split(',').map((item: string) => {
-                        return item.trim();
-                    }),
+                    attachments: row[15],
                     social_networks: row[16].split(',').map((item: string) => {
                         return item.trim();
                     }),
