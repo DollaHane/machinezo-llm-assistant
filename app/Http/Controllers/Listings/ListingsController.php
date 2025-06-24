@@ -287,13 +287,16 @@ class ListingsController extends Controller
             $serialized_work_hours = serialize($work_hours_array);
 
             $listing_id = DB::table('SWX7neDE_posts')->insertGetId([
-                'post_title' => $row['title'],
-                'post_content' => $row['description'],
                 'post_author' => 1,
                 'post_date' => $current_date,
                 'post_date_gmt' => $current_date_gmt,
-                'post_content' => '',
+                'post_content' => $row['description'],
+                'post_title' => $row['title'],
+                'post_excerpt' => '',
                 'post_status' => 'draft',
+                'to_ping' => '',
+                'pinged' => '',
+                'post_content_filtered' => '',
             ]);
 
 
