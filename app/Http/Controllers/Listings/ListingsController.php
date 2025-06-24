@@ -282,7 +282,7 @@ class ListingsController extends Controller
                 ]);
 
                 DB::table('SWX7neDE_posts')->where('ID', $listing_id)->update([
-                    'post_type' => "https://machinezo.co.uk/?post_type=job_listing&#038;p=$listing_id",
+                    'guid' => "https://machinezo.co.uk/?post_type=job_listing&#038;p=$listing_id",
                 ]);
 
 
