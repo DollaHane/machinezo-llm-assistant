@@ -74,12 +74,12 @@ class ListingsController extends Controller
             '*.contact_email' => 'required|email|max:255',
             '*.phone_number' => 'required',
             '*.website' => 'nullable|url|max:255',
-            '*.hire_rate_gbp' => 'string|min:0',
-            '*.hire_rate_eur' => 'string|min:0',
-            '*.hire_rate_usd' => 'string|min:0',
-            '*.hire_rate_aud' => 'string|min:0',
-            '*.hire_rate_nzd' => 'string|min:0',
-            '*.hire_rate_zar' => 'string|min:0',
+            '*.hire_rate_gbp' => 'nullable|string|min:0',
+            '*.hire_rate_eur' => 'nullable|string|min:0',
+            '*.hire_rate_usd' => 'nullable|string|min:0',
+            '*.hire_rate_aud' => 'nullable|string|min:0',
+            '*.hire_rate_nzd' => 'nullable|string|min:0',
+            '*.hire_rate_zar' => 'nullable|string|min:0',
             '*.tags' => 'required|array',
             '*.company_logo' => 'nullable|url|max:255',
             '*.photo_gallery' => 'nullable|array',
@@ -190,7 +190,7 @@ class ListingsController extends Controller
             ], 200);
         } catch (\Exception $error) {
             DB::rollBack();
-            Log::error('Failed to process listings: ' . $error->getMessage());
+            Log::error('Failed to process listings: ' . json_encode($error->getMessage()));
             return response()->json([
                 'message' => 'Failed to process listings',
                 'error' => $error->getMessage(),
@@ -219,12 +219,12 @@ class ListingsController extends Controller
             '*.contact_email' => 'required|email|max:255', // Meta -> DONE
             '*.phone_number' => 'required', // Meta -> DONE
             '*.website' => 'nullable|url|max:255', // Meta -> DONE
-            '*.hire_rate_gbp' => 'string|min:0', // Meta -> NEW 
-            '*.hire_rate_eur' => 'string|min:0', // Meta -> NEW 
-            '*.hire_rate_usd' => 'string|min:0', // Meta -> NEW 
-            '*.hire_rate_aud' => 'string|min:0', // Meta -> NEW 
-            '*.hire_rate_nzd' => 'string|min:0', // Meta -> NEW 
-            '*.hire_rate_zar' => 'string|min:0', // Meta -> NEW 
+            '*.hire_rate_gbp' => 'nullable|string|min:0', // Meta -> NEW 
+            '*.hire_rate_eur' => 'nullable|string|min:0', // Meta -> NEW 
+            '*.hire_rate_usd' => 'nullable|string|min:0', // Meta -> NEW 
+            '*.hire_rate_aud' => 'nullable|string|min:0', // Meta -> NEW 
+            '*.hire_rate_nzd' => 'nullable|string|min:0', // Meta -> NEW 
+            '*.hire_rate_zar' => 'nullable|string|min:0', // Meta -> NEW 
 
             '*.tags' => 'required|array', // Term -> insert functions -> check additional relationships
 
@@ -236,11 +236,20 @@ class ListingsController extends Controller
             '*.region' => 'required|string|max:255', // Meta
             '*.related_listing' => 'nullable|array', // Meta
             '*.hire_rental' => 'nullable|string|max:255', // Meta
-            '*.additional_*' => 'nullable|string|max:255',
+            '*.additional_1' => 'nullable|string|max:255', // Meta -> NEW 
+            '*.additional_2' => 'nullable|string|max:255', // Meta -> NEW 
+            '*.additional_3' => 'nullable|string|max:255', // Meta -> NEW 
+            '*.additional_4' => 'nullable|string|max:255', // Meta -> NEW 
+            '*.additional_5' => 'nullable|string|max:255', // Meta -> NEW 
+            '*.additional_6' => 'nullable|string|max:255', // Meta -> NEW 
+            '*.additional_7' => 'nullable|string|max:255', // Meta -> NEW 
+            '*.additional_8' => 'nullable|string|max:255', // Meta -> NEW 
+            '*.additional_9' => 'nullable|string|max:255', // Meta -> NEW 
+            '*.additional_10' => 'nullable|string|max:255', // Meta -> NEW 
         ]);
 
         if ($validator->fails()) {
-            Log::error('Failed to validate CSV data', json_encode($validator->errors()));
+            Log::error('Failed to validate CSV data' . json_encode($validator->errors()));
             return response()->json(['message' => 'Failed to validate CSV data', 'error' => $validator->errors()], 400);
         }
 
@@ -381,16 +390,16 @@ class ListingsController extends Controller
                     ['meta_key' => '_social-networks', 'meta_value' => ''], // TO-DO: Check where this links to
                     ['meta_key' => '_hire-rental', 'meta_value' => $row['hire_rental']],
                     ['meta_key' => '_work_hours', 'meta_value' => $serialized_work_hours],
-                    ['meta_key' => '_additional_1', 'meta_value' => $row['additional_1']],
-                    ['meta_key' => '_additional_2', 'meta_value' => $row['additional_2']],
-                    ['meta_key' => '_additional_3', 'meta_value' => $row['additional_3']],
-                    ['meta_key' => '_additional_4', 'meta_value' => $row['additional_4']],
-                    ['meta_key' => '_additional_5', 'meta_value' => $row['additional_5']],
-                    ['meta_key' => '_additional_6', 'meta_value' => $row['additional_6']],
-                    ['meta_key' => '_additional_7', 'meta_value' => $row['additional_7']],
-                    ['meta_key' => '_additional_8', 'meta_value' => $row['additional_8']],
-                    ['meta_key' => '_additional_9', 'meta_value' => $row['additional_9']],
-                    ['meta_key' => '_additional_10', 'meta_value' => $row['additional_10']],
+                    ['meta_key' => '_additional_1', 'meta_value' => $row['additional_1'] ?? ''],
+                    ['meta_key' => '_additional_2', 'meta_value' => $row['additional_2'] ?? ''],
+                    ['meta_key' => '_additional_3', 'meta_value' => $row['additional_3'] ?? ''],
+                    ['meta_key' => '_additional_4', 'meta_value' => $row['additional_4'] ?? ''],
+                    ['meta_key' => '_additional_5', 'meta_value' => $row['additional_5'] ?? ''],
+                    ['meta_key' => '_additional_6', 'meta_value' => $row['additional_6'] ?? ''],
+                    ['meta_key' => '_additional_7', 'meta_value' => $row['additional_7'] ?? ''],
+                    ['meta_key' => '_additional_8', 'meta_value' => $row['additional_8'] ?? ''],
+                    ['meta_key' => '_additional_9', 'meta_value' => $row['additional_9'] ?? ''],
+                    ['meta_key' => '_additional_10', 'meta_value' => $row['additional_10'] ?? ''],
                 ];
 
                 // __________________________________
@@ -409,7 +418,7 @@ class ListingsController extends Controller
             return response()->json(['message' => 'Successfully created post with metadata'], 200);
         } catch (\Exception $error) {
             DB::rollBack();
-            Log::error('Failed to create post with metadata', json_encode($error->getMessage()));
+            Log::error('Failed to create post with metadata' . json_encode($error->getMessage()));
             return response()->json(['message' => 'Failed to create post with metadata', 'error' => $error->getMessage()], 500);
         }
     }
@@ -438,12 +447,12 @@ class ListingsController extends Controller
             'contact_email' => 'required|email|min:3|max:255',
             'phone_number' => 'required|min:3|max:255',
             'website' => 'nullable|url|max:255',
-            'hire_rate_gbp' => 'required|string|min:0',
-            'hire_rate_eur' => 'required|string|min:0',
-            'hire_rate_usd' => 'required|string|min:0',
-            'hire_rate_aud' => 'required|string|min:0',
-            'hire_rate_nzd' => 'required|string|min:0',
-            'hire_rate_zar' => 'required|string|min:0',
+            'hire_rate_gbp' => 'nullable|string|min:0',
+            'hire_rate_eur' => 'nullable|string|min:0',
+            'hire_rate_usd' => 'nullable|string|min:0',
+            'hire_rate_aud' => 'nullable|string|min:0',
+            'hire_rate_nzd' => 'nullable|string|min:0',
+            'hire_rate_zar' => 'nullable|string|min:0',
             'tags' => 'required|array',
             'company_logo' => 'nullable|url|max:255',
             'photo_gallery' => 'nullable|array',
@@ -469,7 +478,7 @@ class ListingsController extends Controller
             DB::table('listings')->where('id', $listing_id)->update($validated);
             return response()->json(['message', 'Successfully updated listing'], 200);
         } catch (\Exception $error) {
-            Log::error('Failed to update listing', $error->getMessage());
+            Log::error('Failed to update listing' . json_encode($error->getMessage()));
             return response()->json(['message' => 'Failed to update listing', 'error' => $error->getMessage()], 500);
         }
     }
@@ -540,7 +549,7 @@ class ListingsController extends Controller
             $serializedLinks = serialize($links);
             return $serializedLinks;
         } catch (\Exception $error) {
-            Log::error('Failed to serialize social media links', $error->getMessage());
+            Log::error('Failed to serialize social media links' . json_encode($error->getMessage()));
             return null;
         }
     }
@@ -573,7 +582,7 @@ class ListingsController extends Controller
 
             return $response->content[0]->text;
         } catch (\Exception $error) {
-            Log::error('LLM content generation failed: ' . $error->getMessage());
+            Log::error('LLM content generation failed: ' . json_encode($error->getMessage()));
             return null;
         }
     }
