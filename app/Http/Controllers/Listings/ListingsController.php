@@ -297,6 +297,7 @@ class ListingsController extends Controller
                 'to_ping' => '',
                 'pinged' => '',
                 'post_content_filtered' => '',
+                'post_type' => 'job_listing',
                 'post_modified' => $current_date,
                 'post_modified_gmt' => $current_date_gmt,
             ]);
