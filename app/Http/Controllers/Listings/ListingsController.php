@@ -261,8 +261,6 @@ class ListingsController extends Controller
         try {
             foreach ($data as $row) {
 
-                // TO-DO: Find which table plant_category needs to go into.
-
                 // __________________________________
                 // CREATE SWX7neDE_posts
                 $listing_id = DB::table('SWX7neDE_posts')->insertGetId([
@@ -288,45 +286,59 @@ class ListingsController extends Controller
 
                 // _____________________________________________________
                 // TERMS FUNCTIONS:
-                // step 1: foreach '$tags' as '$tag' get $term_id where name = $tag
+                foreach ($row['tags'] as $tag) {
 
-                // step 1.1: if !$term_id -> insert into terms {
-                //      name => $tag ,
-                //      slug => $tag->lowcase->replace(' ', '-'),
-                //      term_group => 0
-                // }
+                    $tag_term_id = DB::table('SWX7neDE_terms')->where('name', $tag)->value('term_id');
 
-                // step 1.2 insert into term_relationships {
-                //      object_id => $term_id
-                //      term_taxonomy_id => $listing_id
-                // }
+                    if (!$tag_term_id) {
+                        $tag_term_id = DB::table('SWX7neDE_terms')->insertGetId([
+                            'name' => $tag,
+                            'slug' => str_replace(' ', '-', strtolower($tag)),
+                            'term_group' => 0,
+                        ]);
 
-                // step 1.3 need to check relationships in term_taxonomy table
+                        DB::table('SWX7neDE_term_taxonomy')->insert([
+                            'term_id' => $tag_term_id,
+                            'taxonomy' => 'case27_job_listing_tags',
+                            'description' => '',
+                            'parent' => 0,
+                            'count' => 1,
+                        ]);
+                    }
+
+                    DB::table('SWX7neDE_term_relationships')->insert([
+                        'object_id' => $listing_id,
+                        'term_taxonomy_id' => $tag_term_id,
+                        'term_order' => 1,
+                    ]);
+                }
 
 
-                // step 2: Duplicate for plant_category 
+                // _____________________________________________________
+                // PLANT CATEGORY FUNCTIONS:
+                $plant_category_term_id = DB::table('SWX7neDE_terms')->where('name', $row['plant_category'])->value('term_id');
 
-                // foreach ($row['tags'] as $tag) {
-                //     $term_id = DB::table('SWX7neDE_terms')->where('name', $tag)->value('term_id');
-                //     if (!$term_id) {
-                //         $term_id = DB::table('SWX7neDE_terms')->insertGetId([
-                //             'name' => $tag,
-                //             'slug' => Str::slug($tag),
-                //             'term_group' => 0,
-                //         ]);
-                //         DB::table('SWX7neDE_term_taxonomy')->insert([
-                //             'term_id' => $term_id,
-                //             'taxonomy' => 'job_listing_tag',
-                //             'description' => '',
-                //             'parent' => 0,
-                //             'count' => 1,
-                //         ]);
-                //     }
-                //     DB::table('SWX7neDE_term_relationships')->insert([
-                //         'object_id' => $listing_id,
-                //         'term_taxonomy_id' => $term_id,
-                //     ]);
-                // }
+                if (!$plant_category_term_id) {
+                    $plant_category_term_id = DB::table('SWX7neDE_terms')->insertGetId([
+                        'name' => $row['plant_category'],
+                        'slug' => str_replace(' ', '-', strtolower($row['plant_category'])),
+                        'term_group' => 0,
+                    ]);
+
+                    DB::table('SWX7neDE_term_taxonomy')->insert([
+                        'term_id' => $plant_category_term_id,
+                        'taxonomy' => 'job_listing_category',
+                        'description' => '',
+                        'parent' => 0,
+                        'count' => 1,
+                    ]);
+                }
+
+                DB::table('SWX7neDE_term_relationships')->insert([
+                    'object_id' => $listing_id,
+                    'term_taxonomy_id' => $plant_category_term_id,
+                    'term_order' => 1,
+                ]);
 
 
                 // _____________________________________________________
