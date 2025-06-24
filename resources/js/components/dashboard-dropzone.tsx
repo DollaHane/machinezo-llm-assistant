@@ -38,7 +38,7 @@ export default function DashboardDropzone() {
     const { mutate: createListing, isPending } = useMutation({
         mutationFn: async (payload: UploadValidationRequest) => {
             setDisabled(true);
-            await axios.post('/listings', payload);
+            await axios.post('V2/listings', payload);
         },
         onError: (error: AxiosError) => {
             setCsvData([]);
