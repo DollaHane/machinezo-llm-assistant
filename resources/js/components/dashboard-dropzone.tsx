@@ -95,50 +95,52 @@ export default function DashboardDropzone() {
     const onFilesDrop = useCallback(async (files: File[]) => {
         Papa.parse(files[0], {
             delimiter: ';',
+            skipFirstNLines: 1,
             skipEmptyLines: true,
             complete: function (results) {
                 const data = results.data.map((row: any) => ({
                     title: row[0],
                     description: row[1],
                     plant_category: row[2],
-                    contact_email: row[3],
-                    phone_number: row[4],
-                    website: row[5],
-                    hire_rate_gbp: row[6],
-                    hire_rate_eur: row[7],
-                    hire_rate_usd: row[8],
-                    hire_rate_aud: row[9],
-                    hire_rate_nzd: row[10],
-                    hire_rate_zar: row[11],
-                    tags: row[12].split(',').map((item: string) => {
+                    company_name: row[3],
+                    contact_email: row[4],
+                    phone_number: row[5],
+                    website: row[6],
+                    hire_rate_gbp: row[7],
+                    hire_rate_eur: row[8],
+                    hire_rate_usd: row[9],
+                    hire_rate_aud: row[10],
+                    hire_rate_nzd: row[11],
+                    hire_rate_zar: row[12],
+                    tags: row[13].split(',').map((item: string) => {
                         return item.trim();
                     }),
-                    company_logo: row[13].split(',').map((item: string) => {
+                    company_logo: row[14].split(',').map((item: string) => {
                         return item.trim();
                     }),
-                    photo_gallery: row[14].split(',').map((item: string) => {
+                    photo_gallery: row[15].split(',').map((item: string) => {
                         return item.trim();
                     }),
-                    attachments: row[15],
-                    social_networks: row[16].split(',').map((item: string) => {
+                    attachments: row[16],
+                    social_networks: row[17].split(',').map((item: string) => {
                         return item.trim();
                     }),
-                    location: row[17],
-                    region: row[18],
-                    related_listing: row[19].split(',').map((item: string) => {
+                    location: row[18],
+                    region: row[19],
+                    related_listing: row[20].split(',').map((item: string) => {
                         return item.trim();
                     }),
-                    hire_rental: row[20],
-                    additional_1: row[21],
-                    additional_2: row[22],
-                    additional_3: row[23],
-                    additional_4: row[24],
-                    additional_5: row[25],
-                    additional_6: row[26],
-                    additional_7: row[27],
-                    additional_8: row[28],
-                    additional_9: row[29],
-                    additional_10: row[30],
+                    hire_rental: row[21],
+                    additional_1: row[22],
+                    additional_2: row[23],
+                    additional_3: row[24],
+                    additional_4: row[25],
+                    additional_5: row[26],
+                    additional_6: row[27],
+                    additional_7: row[28],
+                    additional_8: row[29],
+                    additional_9: row[30],
+                    additional_10: row[31],
                 }));
                 const validatedData = uploadValidation.parse(data);
                 setCsvData(validatedData);

@@ -12,9 +12,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use App\Models\SWX7neDE_postmeta;
-
-use function Laravel\Prompts\error;
 
 class ListingsController extends Controller
 {
@@ -211,41 +208,38 @@ class ListingsController extends Controller
     {
 
         $validator = Validator::make($request->json()->all(), [
-            '*.title' => 'required|string|max:255', // post -> post_title -> DONE
-            '*.description' => 'required|string', // post -> post_description -> DONE
-
-            '*.plant_category' => 'required|string|max:255', // Term -> insert functions -> check additional relationships
-
-            '*.contact_email' => 'required|email|max:255', // Meta -> DONE
-            '*.phone_number' => 'required', // Meta -> DONE
-            '*.website' => 'nullable|url|max:255', // Meta -> DONE
-            '*.hire_rate_gbp' => 'nullable|string|min:0', // Meta -> NEW 
-            '*.hire_rate_eur' => 'nullable|string|min:0', // Meta -> NEW 
-            '*.hire_rate_usd' => 'nullable|string|min:0', // Meta -> NEW 
-            '*.hire_rate_aud' => 'nullable|string|min:0', // Meta -> NEW 
-            '*.hire_rate_nzd' => 'nullable|string|min:0', // Meta -> NEW 
-            '*.hire_rate_zar' => 'nullable|string|min:0', // Meta -> NEW 
-
-            '*.tags' => 'required|array', // Term -> insert functions -> check additional relationships
-
-            '*.company_logo' => 'nullable|array', // Meta -> DONE
-            '*.photo_gallery' => 'nullable|array', // Meta -> DONE
-            '*.attachments' => 'nullable|string|max:255', // Meta -> DONE
-            '*.social_networks' => 'nullable|array', // Meta -> DONE
-            '*.location' => 'required|string|max:255', // Meta -> DONE
-            '*.region' => 'required|string|max:255', // Meta
-            '*.related_listing' => 'nullable|array', // Meta
-            '*.hire_rental' => 'nullable|string|max:255', // Meta
-            '*.additional_1' => 'nullable|string|max:255', // Meta -> NEW 
-            '*.additional_2' => 'nullable|string|max:255', // Meta -> NEW 
-            '*.additional_3' => 'nullable|string|max:255', // Meta -> NEW 
-            '*.additional_4' => 'nullable|string|max:255', // Meta -> NEW 
-            '*.additional_5' => 'nullable|string|max:255', // Meta -> NEW 
-            '*.additional_6' => 'nullable|string|max:255', // Meta -> NEW 
-            '*.additional_7' => 'nullable|string|max:255', // Meta -> NEW 
-            '*.additional_8' => 'nullable|string|max:255', // Meta -> NEW 
-            '*.additional_9' => 'nullable|string|max:255', // Meta -> NEW 
-            '*.additional_10' => 'nullable|string|max:255', // Meta -> NEW 
+            '*.title' => 'required|string|min:3|max:255',
+            '*.description' => 'required|string|min:3',
+            '*.plant_category' => 'required|string|min:3|max:255',
+            '*.company_name' => 'required|string|min:3|max:255',
+            '*.contact_email' => 'required|email|min:3|max:255',
+            '*.phone_number' => 'required|min:3|max:255',
+            '*.website' => 'nullable|url|max:255',
+            '*.hire_rate_gbp' => 'nullable|string|max:255',
+            '*.hire_rate_eur' => 'nullable|string|max:255',
+            '*.hire_rate_usd' => 'nullable|string|max:255',
+            '*.hire_rate_aud' => 'nullable|string|max:255',
+            '*.hire_rate_nzd' => 'nullable|string|max:255',
+            '*.hire_rate_zar' => 'nullable|string|max:255',
+            '*.tags' => 'required|array',
+            '*.company_logo' => 'nullable|array',
+            '*.photo_gallery' => 'nullable|array',
+            '*.attachments' => 'nullable|string|max:1000',
+            '*.social_networks' => 'nullable|array',
+            '*.location' => 'required|string|max:255',
+            '*.region' => 'required|string|max:255',
+            '*.related_listing' => 'nullable|array',
+            '*.hire_rental' => 'nullable|string|max:255',
+            '*.additional_1' => 'nullable|string|max:255',
+            '*.additional_2' => 'nullable|string|max:255',
+            '*.additional_3' => 'nullable|string|max:255',
+            '*.additional_4' => 'nullable|string|max:255',
+            '*.additional_5' => 'nullable|string|max:255',
+            '*.additional_6' => 'nullable|string|max:255',
+            '*.additional_7' => 'nullable|string|max:255',
+            '*.additional_8' => 'nullable|string|max:255',
+            '*.additional_9' => 'nullable|string|max:255',
+            '*.additional_10' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -383,24 +377,27 @@ class ListingsController extends Controller
                 // COMPLETE META DATA:
 
                 $metadata = [
-                    ['meta_key' => '_case27_listing_type', 'meta_value' => 'plant-hire'], // Same for each post -> not in CSV data
+                    ['meta_key' => '_case27_listing_type', 'meta_value' => 'plant-hire'],
+                    ['meta_key' => '_company-name', 'meta_value' => $row['company_name']],
                     ['meta_key' => '_job_email', 'meta_value' => $row['contact_email']],
                     ['meta_key' => '_job_phone', 'meta_value' => $row['phone_number']],
-                    ['meta_key' => '_job_website', 'meta_value' => $row['website']],
-                    ['meta_key' => '_hire_rate_gbp', 'meta_value' => $row['hire_rate_gbp']], // New meta to be configured in Wordpress
-                    ['meta_key' => '_hire_rate_eur', 'meta_value' => $row['hire_rate_eur']], // New meta to be configured in Wordpress
-                    ['meta_key' => '_hire_rate_usd', 'meta_value' => $row['hire_rate_usd']], // New meta to be configured in Wordpress
-                    ['meta_key' => '_hire_rate_aud', 'meta_value' => $row['hire_rate_aud']], // New meta to be configured in Wordpress
-                    ['meta_key' => '_hire_rate_nzd', 'meta_value' => $row['hire_rate_nzd']], // New meta to be configured in Wordpress
-                    ['meta_key' => '_hire_rate_zar', 'meta_value' => $row['hire_rate_zar']], // New meta to be configured in Wordpress
+                    ['meta_key' => '_job_website', 'meta_value' => $row['website'] ?? ''],
+                    ['meta_key' => '_hire_rate_gbp', 'meta_value' => $row['hire_rate_gbp'] ?? ''], // New meta to be configured in Wordpress
+                    ['meta_key' => '_hire_rate_eur', 'meta_value' => $row['hire_rate_eur'] ?? ''], // New meta to be configured in Wordpress
+                    ['meta_key' => '_hire_rate_usd', 'meta_value' => $row['hire_rate_usd'] ?? ''], // New meta to be configured in Wordpress
+                    ['meta_key' => '_hire_rate_aud', 'meta_value' => $row['hire_rate_aud'] ?? ''], // New meta to be configured in Wordpress
+                    ['meta_key' => '_hire_rate_nzd', 'meta_value' => $row['hire_rate_nzd'] ?? ''], // New meta to be configured in Wordpress
+                    ['meta_key' => '_hire_rate_zar', 'meta_value' => $row['hire_rate_zar'] ?? ''], // New meta to be configured in Wordpress
                     ['meta_key' => '_hire-rate-pricing', 'meta_value' => ''],
-                    ['meta_key' => '_job_logo', 'meta_value' => serialize($row['company_logo'])],
-                    ['meta_key' => '_job_gallery', 'meta_value' => serialize($row['photo_gallery'])],
+                    ['meta_key' => '_job_logo', 'meta_value' => serialize($row['company_logo']) ?? serialize('')],
+                    ['meta_key' => '_job_gallery', 'meta_value' => serialize($row['photo_gallery']) ?? serialize('')],
                     ['meta_key' => '_attachments-available-for-hire', 'meta_value' => $row['attachments']], // TO-DO: Needs to be serialised array in WP -> Update Laravel App
-                    ['meta_key' => '_links', 'meta_value' => $serialized_social_media],
+                    ['meta_key' => '_links', 'meta_value' => $serialized_social_media ?? serialize('')],
                     ['meta_key' => '_location', 'meta_value' => $row['location']], // TO-DO: Check whether these need to be co-ordinates
+                    // TO-DO add region
+                    // TO-DO add related listings
                     ['meta_key' => '_social-networks', 'meta_value' => ''], // TO-DO: Check where this links to
-                    ['meta_key' => '_hire-rental', 'meta_value' => $row['hire_rental']],
+                    ['meta_key' => '_hire-rental', 'meta_value' => $row['hire_rental'] ?? ''],
                     ['meta_key' => '_work_hours', 'meta_value' => $serialized_work_hours],
                     ['meta_key' => '_additional_1', 'meta_value' => $row['additional_1'] ?? ''],
                     ['meta_key' => '_additional_2', 'meta_value' => $row['additional_2'] ?? ''],
