@@ -350,13 +350,24 @@ class ListingsController extends Controller
             $metadata = $this->generateMetadata($row, $serialized_social_media);
 
             // UPDATE SWX7neDE_mylisting_locations
-            DB::table('SWX7neDE_mylisting_locations')
-                ->where('listing_id', $listing_id)
-                ->update([
+            $current_location = DB::table('SWX7neDE_mylisting_locations')->where('listing_id', $listing_id)->first();
+
+            if ($current_location !== null) {
+                DB::table('SWX7neDE_mylisting_locations')
+                    ->where('listing_id', $listing_id)
+                    ->update([
+                        'address' => $row['location'],
+                        'lat' => $row['latitude'],
+                        'lng' => $row['longitude']
+                    ]);
+            } else {
+                DB::table('SWX7neDE_mylisting_locations')->insert([
+                    'listing_id' => $listing_id,
                     'address' => $row['location'],
                     'lat' => $row['latitude'],
                     'lng' => $row['longitude']
                 ]);
+            }
 
             // UPDATE SWX7neDE_postmeta
             foreach ($metadata as $meta) {
