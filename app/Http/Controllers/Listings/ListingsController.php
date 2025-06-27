@@ -215,6 +215,7 @@ class ListingsController extends Controller
                     $this->createWordpressTerm($attachment, $listing_id, 'attachments');
                 }
 
+                $this->createWordpressTerm($row['region'], $listing_id, 'region');
                 $this->createWordpressTerm($row['plant_category'], $listing_id, 'job_listing_category');
                 $this->createWorkHours($listing_id);
                 $serialized_social_media = $this->serializeSocialMedia($row['social_networks']);
@@ -251,7 +252,7 @@ class ListingsController extends Controller
      */
     public function updateV2(Request $request)
     {
-        
+
         if (!Auth::check()) {
             return redirect('/login');
         }
@@ -323,13 +324,12 @@ class ListingsController extends Controller
             // TERM FUNCTIONS:
             $this->updateWordpressTerms($row['tags'], $listing_id, 'case27_job_listing_tags');
             $this->updateWordpressTerms($row['attachments'], $listing_id, 'attachments');
-            $this->updateWordpressPlantCategoryTerms($row['plant_category'], $listing_id);
+            $this->updateWordpressSingleTerm($row['region'], $listing_id, 'region');
+            $this->updateWordpressSingleTerm($row['plant_category'], $listing_id, 'job_listing_category');
 
             // DATA FUNCTIONS:
             $serialized_social_media = $this->serializeSocialMedia($row['social_networks']);
             $metadata = $this->generateMetadata($row, $serialized_social_media);
-
-            Log::info('Metadata: ', $metadata);
 
             // CREATE SWX7neDE_postmeta
             foreach ($metadata as $meta) {
@@ -407,7 +407,8 @@ class ListingsController extends Controller
      * @param int $listing_id
      * @param string $taxonomy
      */
-    private function createWordpressTerm($term, $listing_id, $taxonomy) {
+    private function createWordpressTerm($term, $listing_id, $taxonomy)
+    {
         $term_id = DB::table('SWX7neDE_terms')->where('name', $term)->value('term_id');
 
         if (!$term_id) {
@@ -441,7 +442,8 @@ class ListingsController extends Controller
      * @param int $listing_id
      * @param string $taxonomy
      */
-    private function updateWordpressTerms($terms, $listing_id, $taxonomy) {
+    private function updateWordpressTerms($terms, $listing_id, $taxonomy)
+    {
         $current_terms = DB::table('SWX7neDE_term_relationships')
             ->join('SWX7neDE_term_taxonomy', 'SWX7neDE_term_relationships.term_taxonomy_id', '=', 'SWX7neDE_term_taxonomy.term_taxonomy_id')
             ->join('SWX7neDE_terms', 'SWX7neDE_term_taxonomy.term_id', '=', 'SWX7neDE_terms.term_id')
@@ -497,23 +499,25 @@ class ListingsController extends Controller
 
     /**
      * ____________________________________________________________________
-     * Update WP Plant Category:
-     * 
+     * Update WP Term (Single):
+     * @param string $term
+     * @param int $listing_id
+     * @param string $taxonomy
      */
-    private function updateWordpressPlantCategoryTerms($plant_category, $listing_id)
+    private function updateWordpressSingleTerm($term, $listing_id, $taxonomy)
     {
 
-        $current_plant_category = DB::table('SWX7neDE_term_relationships')
+        $current_term = DB::table('SWX7neDE_term_relationships')
             ->join('SWX7neDE_term_taxonomy', 'SWX7neDE_term_relationships.term_taxonomy_id', '=', 'SWX7neDE_term_taxonomy.term_taxonomy_id')
             ->join('SWX7neDE_terms', 'SWX7neDE_term_taxonomy.term_id', '=', 'SWX7neDE_terms.term_id')
             ->where('SWX7neDE_term_relationships.object_id', $listing_id)
-            ->where('SWX7neDE_term_taxonomy.taxonomy', 'job_listing_category')
+            ->where('SWX7neDE_term_taxonomy.taxonomy', $taxonomy)
             ->select('SWX7neDE_term_relationships.object_id', 'SWX7neDE_terms.term_id', 'SWX7neDE_terms.name')
             ->get();
 
-        if ($current_plant_category[0]->name !== $plant_category) {
-            $this->deleteWorpdressTerm($current_plant_category[0]);
-            $this->createWordpressTerm($plant_category, $listing_id, 'job_listing_category');
+        if ($current_term[0]->name !== $term) {
+            $this->deleteWorpdressTerm($current_term[0]);
+            $this->createWordpressTerm($term, $listing_id, $taxonomy);
         }
     }
 
@@ -631,6 +635,7 @@ class ListingsController extends Controller
     }
 
     /**
+     * ____________________________________________________________________
      * Generate Metadata:
      */
     private function generateMetadata($row, $serialized_social_media)
@@ -653,7 +658,6 @@ class ListingsController extends Controller
             ['meta_key' => '_attachments-available-for-hire', 'meta_value' => serialize($row['attachments']) ?? serialize('')],
             ['meta_key' => '_links', 'meta_value' => $serialized_social_media ?? serialize('')],
             ['meta_key' => '_location', 'meta_value' => $row['location']], // TO-DO: Check whether these need to be co-ordinates
-            // TO-DO add region
             // TO-DO add related listings
             ['meta_key' => '_social-networks', 'meta_value' => ''], // TO-DO: Check where this links to
             ['meta_key' => '_hire-rental', 'meta_value' => $row['hire_rental'] ?? ''],

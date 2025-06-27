@@ -4,6 +4,7 @@ import { Listing } from '@/types/listings';
 export function dataTransformation(listing: ListingData) {
     let tags: string[] = [];
     let plant_category: string = '';
+    let region: string = '';
 
     listing.terms.map((term) => {
         if (term.taxonomy === 'case27_job_listing_tags') {
@@ -11,6 +12,9 @@ export function dataTransformation(listing: ListingData) {
         }
         if (term.taxonomy === 'job_listing_category') {
             plant_category = term.name;
+        }
+        if (term.taxonomy === 'region') {
+            region = term.name;
         }
     });
 
@@ -35,7 +39,7 @@ export function dataTransformation(listing: ListingData) {
         attachments: (listing.postmeta.find((meta) => meta.meta_key === '_attachments-available-for-hire')?.meta_value as string[]) || '',
         social_networks: (listing.postmeta.find((meta) => meta.meta_key === '_social_networks')?.meta_value as string[]) || '',
         location: (listing.postmeta.find((meta) => meta.meta_key === '_location')?.meta_value as string) || '',
-        region: '',
+        region: region,
         related_listing: [''],
         hire_rental: (listing.postmeta.find((meta) => meta.meta_key === '_hire_rental')?.meta_value as string) || '',
         additional_1: (listing.postmeta.find((meta) => meta.meta_key === '_additional_1')?.meta_value as string) || '',
