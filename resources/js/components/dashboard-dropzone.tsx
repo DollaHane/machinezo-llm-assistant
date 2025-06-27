@@ -128,22 +128,25 @@ export default function DashboardDropzone() {
                         return item.trim();
                     }),
                     location: row[18],
-                    region: row[19],
-                    related_listing: row[20].split(',').map((item: string) => {
+                    latitude: parseFloat(row[19]),
+                    longitude: parseFloat(row[20]),
+                    region: row[21],
+                    related_listing: row[22].split(',').map((item: string) => {
                         return item.trim();
                     }),
-                    hire_rental: row[21],
-                    additional_1: row[22],
-                    additional_2: row[23],
-                    additional_3: row[24],
-                    additional_4: row[25],
-                    additional_5: row[26],
-                    additional_6: row[27],
-                    additional_7: row[28],
-                    additional_8: row[29],
-                    additional_9: row[30],
-                    additional_10: row[31],
+                    hire_rental: row[23],
+                    additional_1: row[24],
+                    additional_2: row[25],
+                    additional_3: row[26],
+                    additional_4: row[27],
+                    additional_5: row[28],
+                    additional_6: row[29],
+                    additional_7: row[30],
+                    additional_8: row[31],
+                    additional_9: row[32],
+                    additional_10: row[33],
                 }));
+                console.log('data', data);
                 const validatedData = uploadValidation.parse(data);
                 console.log('data:', validatedData);
                 setCsvData(validatedData);

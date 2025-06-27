@@ -57,10 +57,16 @@ class ListingsController extends Controller
             ->get()
             ->groupBy('object_id');
 
+        $locations = DB::table("SWX7neDE_mylisting_locations")
+            ->whereIn('listing_id', $postIds)
+            ->get()
+            ->groupBy('listing_id');
 
-        $listings->each(function ($post) use ($postmeta, $terms) {
+
+        $listings->each(function ($post) use ($postmeta, $terms, $locations) {
             $post->postmeta = $postmeta[$post->ID] ?? [];
             $post->terms = $terms[$post->ID] ?? [];
+            $post->locations = $locations[$post->ID] ?? [];
         });
 
         return Inertia::render('listings', [
@@ -109,8 +115,11 @@ class ListingsController extends Controller
             ->get()
             ->groupBy('object_id');
 
+        $location = DB::table('SWX7neDE_mylisting_locations')->where('listing_id', $id)->first();
+
         $listing->postmeta = $postmeta[$id] ?? [];
         $listing->terms = $terms[$id] ?? [];
+        $listing->locations = [$location] ?? [];
 
         return Inertia::render('update/listing', [
             'post' => $listing
@@ -154,6 +163,8 @@ class ListingsController extends Controller
             '*.attachments' => 'nullable|array',
             '*.social_networks' => 'nullable|array',
             '*.location' => 'required|string|max:255',
+            '*.latitude' => 'nullable|numeric|decimal:0,7',
+            '*.longitude' => 'nullable|numeric|decimal:0,7',
             '*.region' => 'required|string|max:255',
             '*.related_listing' => 'nullable|array',
             '*.hire_rental' => 'nullable|string|max:255',
@@ -204,8 +215,6 @@ class ListingsController extends Controller
                     'guid' => "https://machinezo.co.uk/?post_type=job_listing&#038;p=$listing_id",
                 ]);
 
-
-                // _____________________________________________________
                 // DATA FUNCTIONS:
                 foreach ($row['tags'] as $tag) {
                     $this->createWordpressTerm($tag, $listing_id, 'case27_job_listing_tags');
@@ -221,9 +230,16 @@ class ListingsController extends Controller
                 $serialized_social_media = $this->serializeSocialMedia($row['social_networks']);
                 $metadata = $this->generateMetadata($row, $serialized_social_media);
 
-                // __________________________________
-                // CREATE SWX7neDE_postmeta
+                // CREATE SWX7neDE_mylisting_locations
+                DB::table('SWX7neDE_mylisting_locations')->insert([
+                    'listing_id' => $listing_id,
+                    'address' => $row['location'],
+                    'lat' => $row['latitude'],
+                    'lng' => $row['longitude']
+                ]);
 
+
+                // CREATE SWX7neDE_postmeta
                 foreach ($metadata as $meta) {
                     DB::table('SWX7neDE_postmeta')->insert([
                         'post_id' => $listing_id,
@@ -279,6 +295,8 @@ class ListingsController extends Controller
             'attachments' => 'nullable|array',
             'social_networks' => 'nullable|array',
             'location' => 'required|string|max:255',
+            'latitude' => 'nullable|numeric|decimal:0,7',
+            'longitude' => 'nullable|numeric|decimal:0,7',
             'region' => 'required|string|max:255',
             'related_listing' => 'nullable|array',
             'hire_rental' => 'nullable|string|max:255',
@@ -331,7 +349,16 @@ class ListingsController extends Controller
             $serialized_social_media = $this->serializeSocialMedia($row['social_networks']);
             $metadata = $this->generateMetadata($row, $serialized_social_media);
 
-            // CREATE SWX7neDE_postmeta
+            // UPDATE SWX7neDE_mylisting_locations
+            DB::table('SWX7neDE_mylisting_locations')
+                ->where('listing_id', $listing_id)
+                ->update([
+                    'address' => $row['location'],
+                    'lat' => $row['latitude'],
+                    'lng' => $row['longitude']
+                ]);
+
+            // UPDATE SWX7neDE_postmeta
             foreach ($metadata as $meta) {
                 DB::table('SWX7neDE_postmeta')->updateOrInsert(
                     [
@@ -657,7 +684,6 @@ class ListingsController extends Controller
             ['meta_key' => '_job_gallery', 'meta_value' => serialize($row['photo_gallery']) ?? serialize('')],
             ['meta_key' => '_attachments-available-for-hire', 'meta_value' => serialize($row['attachments']) ?? serialize('')],
             ['meta_key' => '_links', 'meta_value' => $serialized_social_media ?? serialize('')],
-            ['meta_key' => '_location', 'meta_value' => $row['location']], // TO-DO: Check whether these need to be co-ordinates
             // TO-DO add related listings
             ['meta_key' => '_social-networks', 'meta_value' => ''], // TO-DO: Check where this links to
             ['meta_key' => '_hire-rental', 'meta_value' => $row['hire_rental'] ?? ''],

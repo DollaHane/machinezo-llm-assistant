@@ -19,6 +19,8 @@ export type Listing = {
     attachments: string[] | null;
     social_networks: string[] | null;
     location: string;
+    latitude: number;
+    longitude: number;
     region: string;
     related_listing: string[] | null;
     hire_rental: string | null;
@@ -55,6 +57,8 @@ export type ListingFormData = {
     attachments: string[] | [null];
     social_networks: string[] | [null];
     location: string;
+    latitude: number;
+    longitude: number;
     region: string;
     related_listing: string[] | [null];
     hire_rental: string | null;

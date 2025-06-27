@@ -3,6 +3,13 @@ export type ListingData = {
     comment_count: number;
     comment_status: 'open' | 'closed';
     guid: string;
+    locations: {
+        id: number;
+        listing_id: number;
+        address: string;
+        lat: string;
+        lng: string;
+    }[];
     menu_order: number;
     ping_status: 'open' | 'closed';
     pinged: string;

@@ -5,7 +5,7 @@ export const updateValidation = z.object({
     description: z
         .string()
         .min(3, { message: 'Must be at least 3 characters long' })
-        .max(2000, { message: 'Must be less than 2,000 characters long.' }),
+        .max(3000, { message: 'Must be less than 3,000 characters long.' }),
     plant_category: z
         .string()
         .min(3, { message: 'Must be at least 3 characters long' })
@@ -37,6 +37,8 @@ export const updateValidation = z.object({
     attachments: z.array(z.string().max(1000, { message: 'Must be less than 1,000 characters long.' })).optional(),
     social_networks: z.array(z.string().max(1000, { message: 'Must be less than 1,000 characters long.' }).optional()),
     location: z.string().min(3, { message: 'Must be at least 3 characters long' }).max(255, { message: 'Must be less than 255 characters long.' }),
+    latitude: z.coerce.number().optional(),
+    longitude: z.coerce.number().optional(),
     region: z.string().min(3, { message: 'Must be at least 3 characters long' }).max(255, { message: 'Must be less than 255 characters long.' }),
     related_listing: z.array(z.string().max(1000, { message: 'Must be less than 1,000 characters long.' }).optional()),
     hire_rental: z.string().max(255, { message: 'Must be less than 255 characters long.' }).optional(),

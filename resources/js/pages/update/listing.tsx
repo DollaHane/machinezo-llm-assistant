@@ -51,6 +51,8 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
             attachments: listing.attachments || [''],
             social_networks: listing.social_networks || [''],
             location: listing.location,
+            latitude: listing.latitude,
+            longitude: listing.longitude,
             region: listing.region,
             related_listing: listing.related_listing || [''],
             hire_rental: listing.hire_rental || '',
@@ -131,6 +133,8 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
             attachments,
             social_networks,
             location,
+            latitude,
+            longitude,
             region,
             related_listing,
             hire_rental,
@@ -165,6 +169,8 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
                 attachments,
                 social_networks,
                 location,
+                latitude,
+                longitude,
                 region,
                 related_listing,
                 hire_rental,
@@ -231,7 +237,6 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
     });
 
     function onSubmit(value: z.infer<typeof updateValidation>) {
-        console.log('click');
         const payload: UpdateValidationRequest = {
             title: value.title,
             description: value.description,
@@ -252,6 +257,8 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
             attachments: value.attachments,
             social_networks: value.social_networks,
             location: value.location,
+            latitude: value.latitude,
+            longitude: value.longitude,
             region: value.region,
             related_listing: value.related_listing,
             hire_rental: value.hire_rental,
@@ -400,14 +407,42 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
                                 )}
                             />
 
+                            <div className="grid w-full grid-cols-1 gap-5 md:grid-cols-2">
+                                <FormField
+                                    control={form.control}
+                                    name="latitude"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Latitude:</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="longitude"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Longitude:</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
                             <FormField
                                 control={form.control}
                                 name="region"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>
-                                            Region:<span className="text-red-500">*</span>
-                                        </FormLabel>
+                                        <FormLabel>Region:</FormLabel>
                                         <FormControl>
                                             <Input {...field} />
                                         </FormControl>
@@ -416,15 +451,13 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
                                 )}
                             />
                             <hr />
-                            <div className="grid w-full grid-cols-2 gap-5">
+                            <div className="grid w-full grid-cols-1 gap-5 md:grid-cols-2">
                                 <FormField
                                     control={form.control}
                                     name="hire_rate_gbp"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>
-                                                Rate (GBP):<span className="text-red-500">*</span>
-                                            </FormLabel>
+                                            <FormLabel>Rate (GBP):</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>
@@ -437,9 +470,7 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
                                     name="hire_rate_eur"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>
-                                                Rate (EUR):<span className="text-red-500">*</span>
-                                            </FormLabel>
+                                            <FormLabel>Rate (EUR):</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>
@@ -452,9 +483,7 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
                                     name="hire_rate_usd"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>
-                                                Rate (USD):<span className="text-red-500">*</span>
-                                            </FormLabel>
+                                            <FormLabel>Rate (USD):</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>
@@ -467,9 +496,7 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
                                     name="hire_rate_aud"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>
-                                                Rate (AUD):<span className="text-red-500">*</span>
-                                            </FormLabel>
+                                            <FormLabel>Rate (AUD):</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>
@@ -482,9 +509,7 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
                                     name="hire_rate_nzd"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>
-                                                Rate (NZD):<span className="text-red-500">*</span>
-                                            </FormLabel>
+                                            <FormLabel>Rate (NZD):</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>
@@ -497,9 +522,7 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
                                     name="hire_rate_zar"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>
-                                                Rate (ZAR):<span className="text-red-500">*</span>
-                                            </FormLabel>
+                                            <FormLabel>Rate (ZAR):</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>

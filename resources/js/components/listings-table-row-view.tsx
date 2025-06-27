@@ -167,6 +167,17 @@ export default function ListingsTableRowView({ row }: ListingsTableRowViewProps)
                             <span className={`${titleStyle}`}>Location:</span>
                             <span className={`${contentStyle}`}>{row.location}</span>
                         </div>
+                        <div className="flex flex-row gap-5">
+                            <hr />
+                            <div className={`${divStyle}`}>
+                                <span className={`${titleStyle}`}>Latitude:</span>
+                                <span className={`${contentStyle}`}>{row.latitude}</span>
+                            </div>
+                            <div className={`${divStyle}`}>
+                                <span className={`${titleStyle}`}>Longitude:</span>
+                                <span className={`${contentStyle}`}>{row.longitude}</span>
+                            </div>
+                        </div>
                         <div className={`${divStyle}`}>
                             <hr />
                             <span className={`${titleStyle}`}>Region:</span>
