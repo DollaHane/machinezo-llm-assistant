@@ -28,6 +28,7 @@ class ListingsController extends Controller
         }
 
         $listings = DB::table('SWX7neDE_posts')
+            ->where('post_type', 'job_listing')
             ->orderBy('SWX7neDE_posts.ID', 'desc')
             ->paginate(25);
 
