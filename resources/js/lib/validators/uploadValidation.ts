@@ -35,7 +35,7 @@ export const uploadValidation = z.array(
         ),
         company_logo: z.array(z.string().max(1000, { message: 'Must be less than 1,000 characters long.' }).optional()),
         photo_gallery: z.array(z.string().max(1000, { message: 'Must be less than 1,000 characters long.' }).optional()),
-        attachments: z.string().max(1000, { message: 'Must be less than 1,000 characters long.' }).optional(),
+        attachments: z.array(z.string().max(255, { message: 'Must be less than 255 characters long.' })).optional(),
         social_networks: z.array(z.string().max(1000, { message: 'Must be less than 1,000 characters long.' }).optional()),
         location: z
             .string()

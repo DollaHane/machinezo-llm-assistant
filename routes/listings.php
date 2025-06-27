@@ -10,7 +10,8 @@ Route::middleware('auth')->group(function () {
   Route::put('/listings', [ListingsController::class, 'update'])->name('listings.update');
   Route::delete('/listings/{id}', [ListingsController::class, 'delete'])->name('listings.delete');
 
-  Route::prefix('V2')->group(function() {
+  Route::prefix('V2')->group(function () {
     Route::post('/listings', [ListingsController::class, 'createV2']);
+    Route::put('/listings', [ListingsController::class, 'updateV2'])->name('listings.updateV2');
   });
 });

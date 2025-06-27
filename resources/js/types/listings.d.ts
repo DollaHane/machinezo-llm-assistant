@@ -3,6 +3,7 @@ export type Listing = {
     title: string;
     description: string;
     plant_category: string;
+    company_name: string;
     contact_email: string;
     phone_number: string;
     website: string | null;
@@ -12,14 +13,14 @@ export type Listing = {
     hire_rate_aud: string;
     hire_rate_nzd: string;
     hire_rate_zar: string;
-    tags: string;
-    company_logo: string | null;
-    photo_gallery: string | null;
-    attachments: string | null;
-    social_networks: string | null;
+    tags: string[];
+    company_logo: string[] | null;
+    photo_gallery: string[] | null;
+    attachments: string[] | null;
+    social_networks: string[] | null;
     location: string;
     region: string;
-    related_listing: string | null;
+    related_listing: string[] | null;
     hire_rental: string | null;
     additional_1: string | null;
     additional_2: string | null;
@@ -49,7 +50,7 @@ export type ListingFormData = {
     hire_rate_nzd: string;
     hire_rate_zar: string;
     tags: string[];
-    company_logo: string[] | [null];
+    company_logo: string | null;
     photo_gallery: string[] | [null];
     attachments: string[] | [null];
     social_networks: string[] | [null];

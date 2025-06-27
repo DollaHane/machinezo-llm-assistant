@@ -1,4 +1,3 @@
-'use client';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -6,15 +5,16 @@ import { Textarea } from '@/components/ui/text-area';
 import { toast } from '@/hooks/use-toast';
 import AppLayout from '@/layouts/app-layout';
 import PageLayout from '@/layouts/page-layout';
+import { dataTransformation } from '@/lib/data-transformation';
 import { updateValidation, UpdateValidationRequest } from '@/lib/validators/updateValidation';
 import { BreadcrumbItem } from '@/types';
-import { Listing } from '@/types/listings';
+import { ListingData } from '@/types/listing-data';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Head, Link, router } from '@inertiajs/react';
 import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import { Loader2, Plus, X } from 'lucide-react';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -25,8 +25,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function ListingUpdate({ listing }: { listing: Listing }) {
+export default function ListingUpdate({ post }: { post: ListingData }) {
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const listing = dataTransformation(post);
 
     const form = useForm({
         resolver: zodResolver(updateValidation),
@@ -34,6 +35,7 @@ export default function ListingUpdate({ listing }: { listing: Listing }) {
             title: listing.title,
             description: listing.description,
             plant_category: listing.plant_category,
+            company_name: listing.company_name,
             contact_email: listing.contact_email,
             phone_number: listing.phone_number,
             website: listing.website! || '',
@@ -43,14 +45,14 @@ export default function ListingUpdate({ listing }: { listing: Listing }) {
             hire_rate_aud: listing.hire_rate_aud,
             hire_rate_nzd: listing.hire_rate_nzd,
             hire_rate_zar: listing.hire_rate_zar,
-            tags: JSON.parse(listing.tags!) || [''],
-            company_logo: listing.company_logo || '',
-            photo_gallery: JSON.parse(listing.photo_gallery!) || [''],
-            attachments: JSON.parse(listing.attachments!) || [''],
-            social_networks: JSON.parse(listing.social_networks!) || [''],
+            tags: listing.tags || [''],
+            company_logo: listing.company_logo || [''],
+            photo_gallery: listing.photo_gallery || [''],
+            attachments: listing.attachments || [''],
+            social_networks: listing.social_networks || [''],
             location: listing.location,
             region: listing.region,
-            related_listing: JSON.parse(listing.related_listing!) || [''],
+            related_listing: listing.related_listing || [''],
             hire_rental: listing.hire_rental || '',
             additional_1: listing.additional_1 || '',
             additional_2: listing.additional_2 || '',
@@ -65,11 +67,10 @@ export default function ListingUpdate({ listing }: { listing: Listing }) {
         },
     });
 
-    const errors = form.formState.errors;
-    console.log('Form Errors:', errors);
-
     // @ts-expect-error
     const { fields: tagField, insert: tagInsert, remove: tagRemove } = useFieldArray({ control: form.control, name: 'tags' });
+    // @ts-expect-error
+    const { fields: logoField, insert: logoInsert, remove: logoRemove } = useFieldArray({ control: form.control, name: 'company_logo' });
     // @ts-expect-error
     const { fields: photoField, insert: photoInsert, remove: photoRemove } = useFieldArray({ control: form.control, name: 'photo_gallery' });
     const {
@@ -83,31 +84,38 @@ export default function ListingUpdate({ listing }: { listing: Listing }) {
     // @ts-expect-error
     const { fields: relatedField, insert: relatedInsert, remove: relatedRemove } = useFieldArray({ control: form.control, name: 'related_listing' });
 
-    if (tagField.length === 0) {
-        tagInsert(Math.floor(Math.random() * 1000), '');
-    }
+    useEffect(() => {
+        if (tagField.length === 0) {
+            tagInsert(Math.floor(Math.random() * 1000), '');
+        }
 
-    if (photoField.length === 0) {
-        photoInsert(Math.floor(Math.random() * 1000), '');
-    }
+        if (logoField.length === 0) {
+            photoInsert(Math.floor(Math.random() * 1000), '');
+        }
 
-    if (attachmentsField.length === 0) {
-        attachmentsInsert(Math.floor(Math.random() * 1000), '');
-    }
+        if (photoField.length === 0) {
+            photoInsert(Math.floor(Math.random() * 1000), '');
+        }
 
-    if (socialField.length === 0) {
-        socialInsert(Math.floor(Math.random() * 1000), '');
-    }
+        if (attachmentsField.length === 0) {
+            attachmentsInsert(Math.floor(Math.random() * 1000), '');
+        }
 
-    if (relatedField.length === 0) {
-        relatedInsert(Math.floor(Math.random() * 1000), '');
-    }
+        if (socialField.length === 0) {
+            socialInsert(Math.floor(Math.random() * 1000), '');
+        }
+
+        if (relatedField.length === 0) {
+            relatedInsert(Math.floor(Math.random() * 1000), '');
+        }
+    }, []);
 
     const { mutate: handleMutation } = useMutation({
         mutationFn: async ({
             title,
             description,
             plant_category,
+            company_name,
             contact_email,
             phone_number,
             website,
@@ -141,6 +149,7 @@ export default function ListingUpdate({ listing }: { listing: Listing }) {
                 title,
                 description,
                 plant_category,
+                company_name,
                 contact_email,
                 phone_number,
                 website,
@@ -171,7 +180,7 @@ export default function ListingUpdate({ listing }: { listing: Listing }) {
                 additional_10,
             };
             console.log('Payload', payload);
-            const post = await axios.put('/listings', payload, { headers: { listingId: `${listing.id}` } });
+            const post = await axios.put('/V2/listings', payload, { headers: { listingId: `${listing.id}` } });
             return post;
         },
         onError: (error: AxiosError) => {
@@ -227,13 +236,14 @@ export default function ListingUpdate({ listing }: { listing: Listing }) {
             title: value.title,
             description: value.description,
             plant_category: value.plant_category,
+            company_name: value.company_name,
             contact_email: value.contact_email,
             phone_number: value.phone_number,
             website: value.website,
             hire_rate_gbp: value.hire_rate_gbp,
             hire_rate_eur: value.hire_rate_eur,
             hire_rate_usd: value.hire_rate_usd,
-            hire_rate_aud: value.hire_rate_usd,
+            hire_rate_aud: value.hire_rate_aud,
             hire_rate_nzd: value.hire_rate_nzd,
             hire_rate_zar: value.hire_rate_zar,
             tags: value.tags,
@@ -318,6 +328,21 @@ export default function ListingUpdate({ listing }: { listing: Listing }) {
                             />
                             <FormField
                                 control={form.control}
+                                name="company_name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>
+                                            Company Name:<span className="text-red-500">*</span>
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
                                 name="contact_email"
                                 render={({ field }) => (
                                     <FormItem>
@@ -383,19 +408,6 @@ export default function ListingUpdate({ listing }: { listing: Listing }) {
                                         <FormLabel>
                                             Region:<span className="text-red-500">*</span>
                                         </FormLabel>
-                                        <FormControl>
-                                            <Input {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="company_logo"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Company Logo:</FormLabel>
                                         <FormControl>
                                             <Input {...field} />
                                         </FormControl>
@@ -528,6 +540,46 @@ export default function ListingUpdate({ listing }: { listing: Listing }) {
                                                         variant="ghost"
                                                         onClick={() => tagRemove(index)}
                                                         disabled={tagField.length === 1}
+                                                    >
+                                                        <X />
+                                                    </Button>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            ))}
+
+                            <hr />
+                            <div className="flex w-full items-center justify-between">
+                                <FormLabel>Company Logo:</FormLabel>
+                                <Button
+                                    onClick={(event: FormEvent) => {
+                                        event.preventDefault();
+                                        logoInsert(Math.floor(Math.random() * 1000), '');
+                                    }}
+                                    variant="ghost"
+                                    className="size-8 rounded-full hover:cursor-pointer hover:bg-background hover:text-muted-foreground"
+                                >
+                                    <Plus />
+                                </Button>
+                            </div>
+                            {logoField.map((field, index) => (
+                                <FormField
+                                    key={field.id}
+                                    control={form.control}
+                                    name={`company_logo.${index}`}
+                                    render={({ field: controllerField }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <div className="flex gap-2">
+                                                    <Input {...controllerField} />
+                                                    <Button
+                                                        className="size-8 rounded-full text-red-500 hover:cursor-pointer hover:bg-background hover:text-red-300"
+                                                        variant="ghost"
+                                                        onClick={() => logoRemove(index)}
+                                                        disabled={logoField.length === 1}
                                                     >
                                                         <X />
                                                     </Button>

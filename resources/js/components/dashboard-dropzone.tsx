@@ -104,7 +104,7 @@ export default function DashboardDropzone() {
                     plant_category: row[2],
                     company_name: row[3],
                     contact_email: row[4],
-                    phone_number: row[5],
+                    phone_number: `+${row[5]}`,
                     website: row[6],
                     hire_rate_gbp: row[7],
                     hire_rate_eur: row[8],
@@ -121,7 +121,9 @@ export default function DashboardDropzone() {
                     photo_gallery: row[15].split(',').map((item: string) => {
                         return item.trim();
                     }),
-                    attachments: row[16],
+                    attachments: row[16].split(',').map((item: string) => {
+                        return item.trim();
+                    }),
                     social_networks: row[17].split(',').map((item: string) => {
                         return item.trim();
                     }),
@@ -143,6 +145,7 @@ export default function DashboardDropzone() {
                     additional_10: row[31],
                 }));
                 const validatedData = uploadValidation.parse(data);
+                console.log('data:', validatedData);
                 setCsvData(validatedData);
                 setDisabled(false);
             },

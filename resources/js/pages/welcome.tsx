@@ -12,7 +12,7 @@ export default function Welcome() {
                 <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
             </Head>
             <div className="flex min-h-screen flex-col items-center bg-[#FDFDFC] p-6 text-[#1b1b18] lg:justify-center lg:p-8 dark:bg-[#0a0a0a]">
-                <header className="mb-6 w-full max-w-[335px] text-sm not-has-[nav]:hidden lg:max-w-4xl">
+                <header className="mb-6 w-full max-w-[435px] text-sm not-has-[nav]:hidden sm:max-w-4xl">
                     <nav className="flex items-center justify-end gap-4">
                         {auth.user ? (
                             <Link
@@ -40,7 +40,7 @@ export default function Welcome() {
                     </nav>
                 </header>
                 <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
-                    <main className="flex w-full max-w-[335px] flex-col-reverse lg:max-w-4xl lg:flex-row">
+                    <main className="flex w-full max-w-[435px] flex-col-reverse sm:max-w-4xl lg:flex-row">
                         <div className="flex gap-10 rounded-lg bg-white p-6 text-[13px] leading-[20px] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:p-20 dark:bg-[#161615] dark:text-[#EDEDEC] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]">
                             <div className="w-80 rounded-2xl bg-blue-600 p-5 shadow-lg">
                                 <img src={Machinezo} alt="machinezo" />

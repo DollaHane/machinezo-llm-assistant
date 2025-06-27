@@ -34,7 +34,7 @@ export const updateValidation = z.object({
     ),
     company_logo: z.array(z.string().max(1000, { message: 'Must be less than 1,000 characters long.' }).optional()),
     photo_gallery: z.array(z.string().max(1000, { message: 'Must be less than 1,000 characters long.' }).optional()),
-    attachments: z.string().max(1000, { message: 'Must be less than 1,000 characters long.' }).optional(),
+    attachments: z.array(z.string().max(1000, { message: 'Must be less than 1,000 characters long.' })).optional(),
     social_networks: z.array(z.string().max(1000, { message: 'Must be less than 1,000 characters long.' }).optional()),
     location: z.string().min(3, { message: 'Must be at least 3 characters long' }).max(255, { message: 'Must be less than 255 characters long.' }),
     region: z.string().min(3, { message: 'Must be at least 3 characters long' }).max(255, { message: 'Must be less than 255 characters long.' }),

@@ -21,27 +21,7 @@ const titleStyle = 'text-primary font-semibold mt-5 mb-2';
 const contentStyle = 'text-primary text-sm';
 
 export default function ListingsTableRowView({ row }: ListingsTableRowViewProps) {
-    const tags = JSON.parse(row.tags);
-    let photoGallery;
-    let attachments;
-    let socials;
-    let relatedListing;
-
-    if (row.photo_gallery) {
-        photoGallery = JSON.parse(row.photo_gallery);
-    }
-
-    if (row.attachments) {
-        attachments = JSON.parse(row.attachments);
-    }
-
-    if (row.social_networks) {
-        socials = JSON.parse(row.social_networks);
-    }
-
-    if (row.related_listing) {
-        relatedListing = JSON.parse(row.related_listing);
-    }
+    console.log('row', row);
 
     return (
         <AlertDialog>
@@ -69,6 +49,12 @@ export default function ListingsTableRowView({ row }: ListingsTableRowViewProps)
 
                         <div className={`${divStyle}`}>
                             <hr />
+                            <span className={`${titleStyle}`}>Company Name:</span>
+                            <span className={`${contentStyle}`}>{row.company_name}</span>
+                        </div>
+
+                        <div className={`${divStyle}`}>
+                            <hr />
                             <span className={`${titleStyle}`}>Contact Email:</span>
                             <span className={`${contentStyle}`}>{row.contact_email}</span>
                         </div>
@@ -83,7 +69,9 @@ export default function ListingsTableRowView({ row }: ListingsTableRowViewProps)
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Website:</span>
-                                <span className={`${contentStyle}`}>{row.website}</span>
+                                <a href={`${row.website}`} target="_blank" className={`${contentStyle}`}>
+                                    {row.website}
+                                </a>
                             </div>
                         )}
 
@@ -119,36 +107,42 @@ export default function ListingsTableRowView({ row }: ListingsTableRowViewProps)
                         <div className={`${divStyle}`}>
                             <hr />
                             <span className={`${titleStyle}`}>Tags:</span>
-                            {tags.map((itm: string, index: number) => (
+                            {row.tags.map((itm: string, index: number) => (
                                 <span key={index} className={`${contentStyle}`}>
                                     {itm}
                                 </span>
                             ))}
                         </div>
 
-                        {row.company_logo !== '' && (
+                        {row.company_logo && row.company_logo[0] !== null && (
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Company Logo:</span>
-                                <img src={`${row.company_logo}`} className="mx-auto size-20" />
+                                <div className="flex flex-wrap items-center justify-center gap-2">
+                                    {row.company_logo.map((itm: string, index: number) => (
+                                        <img key={index} src={itm} className="h-20 rounded-md shadow-md" alt={`company-logo-${index + 1}`} />
+                                    ))}
+                                </div>
                             </div>
                         )}
 
-                        {row.photo_gallery !== '[null]' && (
+                        {row.photo_gallery && row.photo_gallery[0] !== null && (
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Photo Gallery:</span>
-                                {photoGallery.map((itm: string, index: number) => {
-                                    <a key={index} href={`${itm}`} target="_blank" className="truncate" />;
-                                })}
+                                <div className="flex flex-wrap items-center justify-center gap-2">
+                                    {row.photo_gallery.map((itm: string, index: number) => (
+                                        <img key={index} src={itm} className="h-20 rounded-md shadow-md" alt={`gallery-image-${index + 1}`} />
+                                    ))}
+                                </div>
                             </div>
                         )}
 
-                        {row.company_logo !== '[null]' && (
+                        {row.attachments && row.attachments[0] !== null && (
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Attachments:</span>
-                                {attachments.map((itm: string, index: number) => (
+                                {row.attachments.map((itm: string, index: number) => (
                                     <span key={index} className={`${contentStyle}`}>
                                         {itm}
                                     </span>
@@ -156,11 +150,11 @@ export default function ListingsTableRowView({ row }: ListingsTableRowViewProps)
                             </div>
                         )}
 
-                        {row.social_networks !== '[null]' && (
+                        {row.social_networks && row.social_networks[0] !== null && (
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Social Networks:</span>
-                                {socials.map((itm: string, index: number) => (
+                                {row.social_networks.map((itm: string, index: number) => (
                                     <span key={index} className={`${contentStyle}`}>
                                         {itm}
                                     </span>
@@ -178,11 +172,11 @@ export default function ListingsTableRowView({ row }: ListingsTableRowViewProps)
                             <span className={`${titleStyle}`}>Region:</span>
                             <span className={`${contentStyle}`}>{row.region}</span>
                         </div>
-                        {row.related_listing !== '[null]' && (
+                        {row.related_listing && row.related_listing.length > 0 && (
                             <div className={`${divStyle}`}>
                                 <hr />
                                 <span className={`${titleStyle}`}>Related Listing:</span>
-                                {relatedListing.map((itm: string, index: number) => (
+                                {row.related_listing.map((itm: string, index: number) => (
                                     <a key={index} href={`${itm}`} target="_blank" className="truncate" />
                                 ))}
                             </div>
