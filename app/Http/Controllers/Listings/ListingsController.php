@@ -122,149 +122,6 @@ class ListingsController extends Controller
 
     /**
      * ____________________________________________________________________
-     * Create listings
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function create(Request $request): JsonResponse
-    {
-
-        $validator = Validator::make($request->json()->all(), [
-            '*.title' => 'required|string|max:255',
-            '*.description' => 'required|string|max:2000',
-            '*.plant_category' => 'required|string|max:255',
-            '*.contact_email' => 'required|email|max:255',
-            '*.phone_number' => 'required',
-            '*.website' => 'nullable|url|max:255',
-            '*.hire_rate_gbp' => 'nullable|string|min:0',
-            '*.hire_rate_eur' => 'nullable|string|min:0',
-            '*.hire_rate_usd' => 'nullable|string|min:0',
-            '*.hire_rate_aud' => 'nullable|string|min:0',
-            '*.hire_rate_nzd' => 'nullable|string|min:0',
-            '*.hire_rate_zar' => 'nullable|string|min:0',
-            '*.tags' => 'required|array',
-            '*.company_logo' => 'nullable|url|max:255',
-            '*.photo_gallery' => 'nullable|array',
-            '*.attachments' => 'nullable|array',
-            '*.social_networks' => 'nullable|array',
-            '*.location' => 'required|string|max:255',
-            '*.region' => 'required|string|max:255',
-            '*.related_listing' => 'nullable|array',
-            '*.hire_rental' => 'nullable|string|max:255',
-            '*.additional_*' => 'nullable|string|max:255',
-        ]);
-
-        if ($validator->fails()) {
-            Log::error('Validation failed: ' . json_encode($validator->errors()));
-            return response()->json(['message' => 'Validation failed', 'errors' => $validator->errors()], 400);
-        }
-
-        $data = $validator->validated();
-        $currentDate = now();
-        DB::beginTransaction();
-        try {
-            foreach ($data as $row) {
-                $description = $this->generateLLMContent($row);
-                if (!$description) {
-                    throw new \Exception('Failed to generate LLM content');
-                    return response()->json(['Message' => 'Failed to generate LLM content'], 465);
-                }
-
-                $insertData = [
-                    'title' => $row['title'],
-                    'description' => $description,
-                    'plant_category' => $row['plant_category'],
-                    'contact_email' => $row['contact_email'],
-                    'phone_number' => $row['phone_number'],
-                    'website' => $row['website'] ?? '',
-                    'hire_rate_gbp' => $row['hire_rate_gbp'],
-                    'hire_rate_eur' => $row['hire_rate_eur'],
-                    'hire_rate_usd' => $row['hire_rate_usd'],
-                    'hire_rate_aud' => $row['hire_rate_aud'],
-                    'hire_rate_nzd' => $row['hire_rate_nzd'],
-                    'hire_rate_zar' => $row['hire_rate_zar'],
-                    'tags' => json_encode($row['tags']),
-                    'company_logo' => $row['company_logo'] ?? '',
-                    'photo_gallery' => json_encode($row['photo_gallery'] ?? []),
-                    'attachments' => json_encode($row['attachments'] ?? []),
-                    'social_networks' => json_encode($row['social_networks'] ?? []),
-                    'location' => $row['location'],
-                    'region' => $row['region'],
-                    'related_listing' => json_encode($row['related_listing'] ?? []),
-                    'hire_rental' => $row['hire_rental'] ?? '',
-                    'additional_1' => $row['additional_1'] ?? '',
-                    'additional_2' => $row['additional_2'] ?? '',
-                    'additional_3' => $row['additional_3'] ?? '',
-                    'additional_4' => $row['additional_4'] ?? '',
-                    'additional_5' => $row['additional_5'] ?? '',
-                    'additional_6' => $row['additional_6'] ?? '',
-                    'additional_7' => $row['additional_7'] ?? '',
-                    'additional_8' => $row['additional_8'] ?? '',
-                    'additional_9' => $row['additional_9'] ?? '',
-                    'additional_10' => $row['additional_10'] ?? '',
-                    'created_at' => $currentDate,
-                    'updated_at' => $currentDate,
-                ];
-
-                $id = DB::table('listings')->insertGetId($insertData);
-
-                $work_hours_data = [
-                    [
-                        'listing_id' => $id,
-                        'start' => 480,
-                        'end' => 1020,
-                        'timezone' => 'Europe/London',
-                    ],
-                    [
-                        'listing_id' => $id,
-                        'start' => 1920,
-                        'end' => 2460,
-                        'timezone' => 'Europe/London',
-                    ],
-                    [
-                        'listing_id' => $id,
-                        'start' => 3360,
-                        'end' => 3900,
-                        'timezone' => 'Europe/London',
-                    ],
-                    [
-                        'listing_id' => $id,
-                        'start' => 4800,
-                        'end' => 5340,
-                        'timezone' => 'Europe/London',
-                    ],
-                    [
-                        'listing_id' => $id,
-                        'start' => 6240,
-                        'end' => 6780,
-                        'timezone' => 'Europe/London',
-                    ],
-                ];
-
-                DB::table('listings_workhours')->insert($work_hours_data);
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'message' => 'Successfully created listings',
-                'count' => count($insertData),
-            ], 200);
-        } catch (\Exception $error) {
-            DB::rollBack();
-            Log::error('Failed to process listings: ' . json_encode($error->getMessage()));
-            return response()->json([
-                'message' => 'Failed to process listings',
-                'error' => $error->getMessage(),
-            ], 500);
-        }
-    }
-
-
-
-    /**
-     * ____________________________________________________________________
      * Create listings V2
      * @param Request $request
      * @return JsonReponse
@@ -272,6 +129,10 @@ class ListingsController extends Controller
 
     public function createV2(Request $request)
     {
+
+        if (!Auth::check()) {
+            return redirect('/login');
+        }
 
         $validator = Validator::make($request->json()->all(), [
             '*.title' => 'required|string|min:3|max:255',
@@ -347,10 +208,14 @@ class ListingsController extends Controller
                 // _____________________________________________________
                 // DATA FUNCTIONS:
                 foreach ($row['tags'] as $tag) {
-                    $this->createWorpressTagTerms($tag, $listing_id);
+                    $this->createWordpressTerm($tag, $listing_id, 'case27_job_listing_tags');
                 }
 
-                $this->createWordpressPlantCategoryTerm($row['plant_category'], $listing_id);
+                foreach ($row['attachments'] as $attachment) {
+                    $this->createWordpressTerm($attachment, $listing_id, 'attachments');
+                }
+
+                $this->createWordpressTerm($row['plant_category'], $listing_id, 'job_listing_category');
                 $this->createWorkHours($listing_id);
                 $serialized_social_media = $this->serializeSocialMedia($row['social_networks']);
                 $metadata = $this->generateMetadata($row, $serialized_social_media);
@@ -378,66 +243,6 @@ class ListingsController extends Controller
 
 
 
-
-    /**
-     * ____________________________________________________________________
-     * Update Listing
-     * 
-     * @param Request $request
-     */
-
-    public function update(Request $request)
-    {
-        Log::info($request->all());
-        $listing_id = $request->header('listingId');
-        $currentDate = now();
-
-        // Returns status 422 if not valid
-        $validated = $request->validate([
-            'title' => 'required|string|min:3|max:255',
-            'description' => 'required|string|min:3|max:2000',
-            'plant_category' => 'required|string|min:3|max:255',
-            'contact_email' => 'required|email|min:3|max:255',
-            'phone_number' => 'required|min:3|max:255',
-            'website' => 'nullable|url|max:255',
-            'hire_rate_gbp' => 'nullable|string|min:0',
-            'hire_rate_eur' => 'nullable|string|min:0',
-            'hire_rate_usd' => 'nullable|string|min:0',
-            'hire_rate_aud' => 'nullable|string|min:0',
-            'hire_rate_nzd' => 'nullable|string|min:0',
-            'hire_rate_zar' => 'nullable|string|min:0',
-            'tags' => 'required|array',
-            'company_logo' => 'nullable|url|max:255',
-            'photo_gallery' => 'nullable|array',
-            'attachments' => 'nullable|array',
-            'social_networks' => 'nullable|array',
-            'location' => 'required|string|min:3|max:255',
-            'region' => 'required|string|min:3|max:255',
-            'related_listing' => 'nullable|array',
-            'hire_rental' => 'nullable|string|max:255',
-            'additional_1' => 'nullable|string|max:255',
-            'additional_2' => 'nullable|string|max:255',
-            'additional_3' => 'nullable|string|max:255',
-            'additional_4' => 'nullable|string|max:255',
-            'additional_5' => 'nullable|string|max:255',
-            'additional_6' => 'nullable|string|max:255',
-            'additional_7' => 'nullable|string|max:255',
-            'additional_8' => 'nullable|string|max:255',
-            'additional_9' => 'nullable|string|max:255',
-            'additional_10' => 'nullable|string|max:255',
-        ]);
-
-        try {
-            DB::table('listings')->where('id', $listing_id)->update($validated);
-            return response()->json(['message', 'Successfully updated listing'], 200);
-        } catch (\Exception $error) {
-            Log::error('Failed to update listing' . json_encode($error->getMessage()));
-            return response()->json(['message' => 'Failed to update listing', 'error' => $error->getMessage()], 500);
-        }
-    }
-
-
-
     /**
      * ____________________________________________________________________
      * Update Listing V2
@@ -446,11 +251,12 @@ class ListingsController extends Controller
      */
     public function updateV2(Request $request)
     {
-        $listing_id = $request->header('listingId');
+        
+        if (!Auth::check()) {
+            return redirect('/login');
+        }
 
-        Log::info($request->all());
-        Log:
-        info($listing_id);
+        $listing_id = $request->header('listingId');
 
         $validator = Validator::make($request->json()->all(), [
             'title' => 'required|string|min:3|max:255',
@@ -515,7 +321,8 @@ class ListingsController extends Controller
             ]);
 
             // TERM FUNCTIONS:
-            $this->updateWordpressTagTerms($row, $listing_id);
+            $this->updateWordpressTerms($row['tags'], $listing_id, 'case27_job_listing_tags');
+            $this->updateWordpressTerms($row['attachments'], $listing_id, 'attachments');
             $this->updateWordpressPlantCategoryTerms($row['plant_category'], $listing_id);
 
             // DATA FUNCTIONS:
@@ -594,25 +401,25 @@ class ListingsController extends Controller
 
     /**
      * ____________________________________________________________________
-     * Create WP Tags:
+     * Create WP Terms:
      * 
-     * @param string $tag
+     * @param string $term
      * @param int $listing_id
+     * @param string $taxonomy
      */
-    private function createWorpressTagTerms($tag, $listing_id)
-    {
-        $tag_term_id = DB::table('SWX7neDE_terms')->where('name', $tag)->value('term_id');
+    private function createWordpressTerm($term, $listing_id, $taxonomy) {
+        $term_id = DB::table('SWX7neDE_terms')->where('name', $term)->value('term_id');
 
-        if (!$tag_term_id) {
-            $tag_term_id = DB::table('SWX7neDE_terms')->insertGetId([
-                'name' => $tag,
-                'slug' => str_replace(' ', '-', strtolower($tag)),
+        if (!$term_id) {
+            $term_id = DB::table('SWX7neDE_terms')->insertGetId([
+                'name' => $term,
+                'slug' => str_replace(' ', '-', strtolower($term)),
                 'term_group' => 0,
             ]);
 
             DB::table('SWX7neDE_term_taxonomy')->insert([
-                'term_id' => $tag_term_id,
-                'taxonomy' => 'case27_job_listing_tags',
+                'term_id' => $term_id,
+                'taxonomy' => $taxonomy,
                 'description' => '',
                 'parent' => 0,
                 'count' => 1,
@@ -621,100 +428,72 @@ class ListingsController extends Controller
 
         DB::table('SWX7neDE_term_relationships')->insert([
             'object_id' => $listing_id,
-            'term_taxonomy_id' => $tag_term_id,
+            'term_taxonomy_id' => $term_id,
             'term_order' => 1,
         ]);
     }
 
     /**
      * ____________________________________________________________________
-     * Update WP Tags:
+     * Update WP Terms
      * 
+     * @param string[] $terms
+     * @param int $listing_id
+     * @param string $taxonomy
      */
-    private function updateWordpressTagTerms($row, $listing_id)
-    {
-        $current_tags = DB::table('SWX7neDE_term_relationships')
+    private function updateWordpressTerms($terms, $listing_id, $taxonomy) {
+        $current_terms = DB::table('SWX7neDE_term_relationships')
             ->join('SWX7neDE_term_taxonomy', 'SWX7neDE_term_relationships.term_taxonomy_id', '=', 'SWX7neDE_term_taxonomy.term_taxonomy_id')
             ->join('SWX7neDE_terms', 'SWX7neDE_term_taxonomy.term_id', '=', 'SWX7neDE_terms.term_id')
             ->where('SWX7neDE_term_relationships.object_id', $listing_id)
-            ->where('SWX7neDE_term_taxonomy.taxonomy', 'case27_job_listing_tags')
+            ->where('SWX7neDE_term_taxonomy.taxonomy', $taxonomy)
             ->select('SWX7neDE_term_relationships.object_id', 'SWX7neDE_terms.term_id', 'SWX7neDE_terms.name')
             ->get();
 
-        $tags_to_delete = [];
+        $terms_to_delete = [];
 
-        foreach ($current_tags as $cur_tag) {
+        foreach ($current_terms as $cur_term) {
             $remove = true;
-            foreach ($row['tags'] as $tag) {
-                if ($cur_tag->name === $tag) {
+            foreach ($terms as $term) {
+                if ($cur_term->name === $term) {
                     $remove = false;
                     break;
                 }
             }
             if ($remove) {
-                $tags_to_delete[] = $cur_tag;
+                $terms_to_delete[] = $cur_term;
             }
         }
 
-        if (count($tags_to_delete) > 0) {
-            foreach ($tags_to_delete as $tag) {
-                $this->deleteWorpdressTerm($tag);
+        if (count($terms_to_delete) > 0) {
+            foreach ($terms_to_delete as $term) {
+                $this->deleteWorpdressTerm($term);
             }
         }
 
-        $tags_to_add = [];
+        $terms_to_add = [];
 
-        foreach ($row['tags'] as $tag) {
+        foreach ($terms as $term) {
             $add = true;
-            foreach ($current_tags as $cur_tag) {
-                if ($tag === $cur_tag->name) {
+            foreach ($current_terms as $cur_term) {
+                if ($term === $cur_term->name) {
                     $add = false;
                     break;
                 }
             }
 
             if ($add) {
-                $tags_to_add[] = $tag;
+                $terms_to_add[] = $term;
             }
         }
 
-        if (count($tags_to_add) > 0) {
-            foreach ($tags_to_add as $tag) {
-                $this->createWorpressTagTerms($tag, $listing_id);
+        if (count($terms_to_add) > 0) {
+            foreach ($terms_to_add as $term) {
+                $this->createWordpressTerm($term, $listing_id, $taxonomy);
             }
         }
     }
 
-    /**
-     * ____________________________________________________________________
-     * Create WP Plant Category
-     */
-    private function createWordpressPlantCategoryTerm($plant_category, $listing_id)
-    {
-        $plant_category_term_id = DB::table('SWX7neDE_terms')->where('name', $plant_category)->value('term_id');
-
-        if (!$plant_category_term_id) {
-            $plant_category_term_id = DB::table('SWX7neDE_terms')->insertGetId([
-                'name' => $plant_category,
-                'slug' => str_replace(' ', '-', strtolower($plant_category)),
-                'term_group' => 0,
-            ]);
-
-            DB::table('SWX7neDE_term_taxonomy')->insert([
-                'term_id' => $plant_category_term_id,
-                'taxonomy' => 'job_listing_category',
-                'description' => '',
-                'parent' => 0,
-                'count' => 1,
-            ]);
-        }
-
-        DB::table('SWX7neDE_term_relationships')->insert([
-            'object_id' => $listing_id,
-            'term_taxonomy_id' => $plant_category_term_id,
-            'term_order' => 1,
-        ]);
-    }
 
     /**
      * ____________________________________________________________________
@@ -734,9 +513,10 @@ class ListingsController extends Controller
 
         if ($current_plant_category[0]->name !== $plant_category) {
             $this->deleteWorpdressTerm($current_plant_category[0]);
-            $this->createWordpressPlantCategoryTerm($plant_category, $listing_id);
+            $this->createWordpressTerm($plant_category, $listing_id, 'job_listing_category');
         }
     }
+
 
     /**
      * ____________________________________________________________________
@@ -870,7 +650,7 @@ class ListingsController extends Controller
             ['meta_key' => '_hire-rate-pricing', 'meta_value' => ''],
             ['meta_key' => '_job_logo', 'meta_value' => serialize($row['company_logo']) ?? serialize('')],
             ['meta_key' => '_job_gallery', 'meta_value' => serialize($row['photo_gallery']) ?? serialize('')],
-            ['meta_key' => '_attachments-available-for-hire', 'meta_value' => serialize($row['attachments']) ?? serialize('')], // TO-DO: Needs to be serialised array in WP -> Update Laravel App
+            ['meta_key' => '_attachments-available-for-hire', 'meta_value' => serialize($row['attachments']) ?? serialize('')],
             ['meta_key' => '_links', 'meta_value' => $serialized_social_media ?? serialize('')],
             ['meta_key' => '_location', 'meta_value' => $row['location']], // TO-DO: Check whether these need to be co-ordinates
             // TO-DO add region
