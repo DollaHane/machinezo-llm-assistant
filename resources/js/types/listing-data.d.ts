@@ -37,8 +37,15 @@ export type ListingData = {
         name: string;
         taxonomy: string;
     }[];
+    related_listings: {
+        id: number;
+        parent_listing_id: number;
+        child_listing_id: number;
+        field_key: string;
+        item_order: number;
+    }[];
     to_ping: string;
 };
 
-export type Term = Pick<ListingData, 'terms'>;
-export type Postmeta = Pick<ListingData, 'postmeta'>;
+export type Term = ListingData['terms'][number];
+export type Related_Listing = ListingData['related_listings'][number];

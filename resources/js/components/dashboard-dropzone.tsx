@@ -132,7 +132,7 @@ export default function DashboardDropzone() {
                     longitude: parseFloat(row[20]),
                     region: row[21],
                     related_listing: row[22].split(',').map((item: string) => {
-                        return item.trim();
+                        return parseFloat(item.trim());
                     }),
                     hire_rental: row[23],
                     additional_1: row[24],

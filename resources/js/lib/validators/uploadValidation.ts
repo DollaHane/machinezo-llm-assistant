@@ -44,7 +44,7 @@ export const uploadValidation = z.array(
         latitude: z.number().optional(),
         longitude: z.number().optional(),
         region: z.string().min(3, { message: 'Must be at least 3 characters long' }).max(255, { message: 'Must be less than 255 characters long.' }),
-        related_listing: z.array(z.string().max(1000, { message: 'Must be less than 1,000 characters long.' }).optional()),
+        related_listing: z.array(z.coerce.number().optional()),
         hire_rental: z.string().max(255, { message: 'Must be less than 255 characters long.' }).optional(),
         additional_1: z.string().max(255, { message: 'Must be less than 255 characters long.' }).optional(),
         additional_2: z.string().max(255, { message: 'Must be less than 255 characters long.' }).optional(),

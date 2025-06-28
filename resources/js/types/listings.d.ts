@@ -22,7 +22,7 @@ export type Listing = {
     latitude: number;
     longitude: number;
     region: string;
-    related_listing: string[] | null;
+    related_listing: number[] | null;
     hire_rental: string | null;
     additional_1: string | null;
     additional_2: string | null;

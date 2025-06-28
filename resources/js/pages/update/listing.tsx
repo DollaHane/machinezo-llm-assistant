@@ -54,7 +54,7 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
             latitude: listing.latitude,
             longitude: listing.longitude,
             region: listing.region,
-            related_listing: listing.related_listing || [''],
+            related_listing: listing.related_listing || [0],
             hire_rental: listing.hire_rental || '',
             additional_1: listing.additional_1 || '',
             additional_2: listing.additional_2 || '',
@@ -757,7 +757,7 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
                                         <FormItem>
                                             <FormControl>
                                                 <div className="flex gap-2">
-                                                    <Input {...controllerField} />
+                                                    <Input type="number" {...controllerField} />
                                                     <Button
                                                         className="size-8 rounded-full text-red-500 hover:cursor-pointer hover:bg-background hover:text-red-300"
                                                         variant="ghost"

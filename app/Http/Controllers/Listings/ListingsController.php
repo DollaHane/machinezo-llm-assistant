@@ -62,11 +62,17 @@ class ListingsController extends Controller
             ->get()
             ->groupBy('listing_id');
 
+        $related_listings = DB::table('SWX7neDE_mylisting_relations')
+            ->whereIn('parent_listing_id', $postIds)
+            ->get()
+            ->groupBy('parent_listing_id');
 
-        $listings->each(function ($post) use ($postmeta, $terms, $locations) {
+
+        $listings->each(function ($post) use ($postmeta, $terms, $locations, $related_listings) {
             $post->postmeta = $postmeta[$post->ID] ?? [];
             $post->terms = $terms[$post->ID] ?? [];
             $post->locations = $locations[$post->ID] ?? [];
+            $post->related_listings = $related_listings[$post->ID] ?? [];
         });
 
         return Inertia::render('listings', [
@@ -116,10 +122,12 @@ class ListingsController extends Controller
             ->groupBy('object_id');
 
         $location = DB::table('SWX7neDE_mylisting_locations')->where('listing_id', $id)->first();
+        $related_listings = DB::table('SWX7neDE_mylisting_relations')->where('parent_listing_id', $id)->get();
 
         $listing->postmeta = $postmeta[$id] ?? [];
         $listing->terms = $terms[$id] ?? [];
         $listing->locations = [$location] ?? [];
+        $listing->related_listings = $related_listings ?? [];
 
         return Inertia::render('update/listing', [
             'post' => $listing
@@ -214,6 +222,18 @@ class ListingsController extends Controller
                 DB::table('SWX7neDE_posts')->where('ID', $listing_id)->update([
                     'guid' => "https://machinezo.co.uk/?post_type=job_listing&#038;p=$listing_id",
                 ]);
+
+                // CREATE SWX7neDE_mylisting_relations:
+                if (count($row['related_listing']) > 0) {
+                    foreach ($row['related_listing'] as $related_listing) {
+                        DB::table('SWX7neDE_mylisting_relations')->insert([
+                            'parent_listing_id' => $listing_id,
+                            'child_listing_id' => $related_listing,
+                            'field_key' => 'related_listing',
+                            'item_order' => 0
+                        ]);
+                    }
+                }
 
                 // DATA FUNCTIONS:
                 foreach ($row['tags'] as $tag) {
@@ -338,6 +358,11 @@ class ListingsController extends Controller
                 'post_modified' => $current_date,
                 'post_modified_gmt' => $current_date_gmt,
             ]);
+
+            // UPDATE SWX7neDE_mylisting_relations:
+            if (count($row['related_listing']) > 0) {
+                $this->updateWordpressRelatedListings($row['related_listing'], $listing_id);
+            }
 
             // TERM FUNCTIONS:
             $this->updateWordpressTerms($row['tags'], $listing_id, 'case27_job_listing_tags');
@@ -534,7 +559,6 @@ class ListingsController extends Controller
         }
     }
 
-
     /**
      * ____________________________________________________________________
      * Update WP Term (Single):
@@ -559,7 +583,6 @@ class ListingsController extends Controller
         }
     }
 
-
     /**
      * ____________________________________________________________________
      * Delete WP Terms:
@@ -571,6 +594,43 @@ class ListingsController extends Controller
             ->where('object_id', $term->object_id)
             ->where('term_taxonomy_id', $term->term_id)
             ->delete();
+    }
+
+    /**
+     * ____________________________________________________________________
+     * Update Related Listings
+     * @param number[] $listings
+     * @param number $listing_id
+     */
+    private function updateWordpressRelatedListings($listings, $listing_id)
+    {
+        $current_related_listings = DB::table('SWX7neDE_mylisting_relations')
+            ->where('parent_listing_id', $listing_id)
+            ->pluck('child_listing_id')
+            ->toArray();
+
+        $listing_to_delete = array_diff($current_related_listings, $listings);
+        $listing_to_add = array_diff($listings, $current_related_listings);
+
+        if (!empty($listing_to_delete)) {
+            DB::table('SWX7neDE_mylisting_relations')
+                ->where('parent_listing_id', $listing_id)
+                ->whereIn('child_listing_id', $listing_to_delete)
+                ->delete();
+        }
+
+        if (!empty($listing_to_add)) {
+            $insert_data = array_map(function ($child_id) use ($listing_id) {
+                return [
+                    'parent_listing_id' => $listing_id,
+                    'child_listing_id' => $child_id,
+                    'field_key' => 'related_listing',
+                    'item_order' => 0,
+                ];
+            }, $listing_to_add);
+
+            DB::table('SWX7neDE_mylisting_relations')->insert($insert_data);
+        }
     }
 
     /**
@@ -695,7 +755,6 @@ class ListingsController extends Controller
             ['meta_key' => '_job_gallery', 'meta_value' => serialize($row['photo_gallery']) ?? serialize('')],
             ['meta_key' => '_attachments-available-for-hire', 'meta_value' => serialize($row['attachments']) ?? serialize('')],
             ['meta_key' => '_links', 'meta_value' => $serialized_social_media ?? serialize('')],
-            // TO-DO add related listings
             ['meta_key' => '_social-networks', 'meta_value' => ''], // TO-DO: Check where this links to
             ['meta_key' => '_hire-rental', 'meta_value' => $row['hire_rental'] ?? ''],
             ['meta_key' => '_additional_1', 'meta_value' => $row['additional_1'] ?? ''],

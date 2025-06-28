@@ -41,7 +41,7 @@ type Pagination = {
 export default function Listings({ listings }: { listings: Pagination }) {
     const listing_data: ListingData[] = listings.data;
     let data: Listing[] = [];
-
+    
     listing_data.map((listing: ListingData) => {
         const object = dataTransformation(listing);
         data.push(object);

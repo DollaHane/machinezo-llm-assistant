@@ -1,12 +1,13 @@
-import { ListingData } from '@/types/listing-data';
+import { ListingData, Related_Listing, Term } from '@/types/listing-data';
 import { Listing } from '@/types/listings';
 
 export function dataTransformation(listing: ListingData) {
     let tags: string[] = [];
     let plant_category: string = '';
     let region: string = '';
+    let related_listings: number[] = [];
 
-    listing.terms.map((term) => {
+    listing.terms.map((term: Term) => {
         if (term.taxonomy === 'case27_job_listing_tags') {
             tags.push(term.name);
         }
@@ -16,6 +17,10 @@ export function dataTransformation(listing: ListingData) {
         if (term.taxonomy === 'region') {
             region = term.name;
         }
+    });
+
+    listing.related_listings.map((listing: Related_Listing) => {
+        related_listings.push(listing.child_listing_id);
     });
 
     const object: Listing = {
@@ -42,7 +47,7 @@ export function dataTransformation(listing: ListingData) {
         latitude: (listing.locations[0] && parseFloat(listing.locations[0].lat)) || 0,
         longitude: (listing.locations[0] && parseFloat(listing.locations[0].lng)) || 0,
         region: region,
-        related_listing: [''],
+        related_listing: related_listings,
         hire_rental: (listing.postmeta.find((meta) => meta.meta_key === '_hire_rental')?.meta_value as string) || '',
         additional_1: (listing.postmeta.find((meta) => meta.meta_key === '_additional_1')?.meta_value as string) || '',
         additional_2: (listing.postmeta.find((meta) => meta.meta_key === '_additional_2')?.meta_value as string) || '',
