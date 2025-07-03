@@ -60,7 +60,7 @@ export function ListingsTable<TData, TValue>({ columns, data }: DataTableProps<T
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <div className="rounded-2xl p-2 shadow-md">
+            <div className="rounded-2xl p-0 shadow-md">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -81,7 +81,7 @@ export function ListingsTable<TData, TValue>({ columns, data }: DataTableProps<T
                                 <TableRow
                                     key={row.id}
                                     data-state={row.getIsSelected() && 'selected'}
-                                    className="group relative hover:cursor-pointer hover:bg-gradient-to-r hover:from-blue-200 hover:via-blue-100/50 hover:to-background dark:hover:from-blue-900 dark:hover:via-blue-800/50 dark:hover:to-background"
+                                    className="group relative hover:cursor-pointer hover:bg-gradient-to-r hover:from-blue-100/50 hover:via-blue-100/20 hover:to-background dark:hover:from-blue-900 dark:hover:via-blue-800/50 dark:hover:to-background"
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id} className="max-w-32 truncate">

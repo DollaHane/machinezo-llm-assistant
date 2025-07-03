@@ -107,9 +107,9 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
             socialInsert(Math.floor(Math.random() * 1000), '');
         }
 
-        if (relatedField.length === 0) {
-            relatedInsert(Math.floor(Math.random() * 1000), '');
-        }
+        // if (relatedField.length === 0) {
+        //     relatedInsert(Math.floor(Math.random() * 1000), '');
+        // }
     }, []);
 
     const { mutate: handleMutation } = useMutation({
@@ -762,7 +762,7 @@ export default function ListingUpdate({ post }: { post: ListingData }) {
                                                         className="size-8 rounded-full text-red-500 hover:cursor-pointer hover:bg-background hover:text-red-300"
                                                         variant="ghost"
                                                         onClick={() => relatedRemove(index)}
-                                                        disabled={relatedField.length === 1}
+                                                        // disabled={relatedField.length === 1}
                                                     >
                                                         <X />
                                                     </Button>
