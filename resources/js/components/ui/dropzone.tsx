@@ -95,7 +95,7 @@ export default function DropZone(
     <div
       ref={dropZoneRef}
       className={cn(
-        "flex flex-col relative w-2/3 min-w-[300px] h-72 bg-muted border-2 border-muted-foreground border-dotted gap-5 items-center justify-center rounded-xl p-3 shadow-lg",
+        "flex flex-col relative w-2/3 min-w-[300px] h-80 bg-muted border-2 border-muted-foreground border-dotted gap-5 items-center justify-center rounded-xl p-3 shadow-lg",
         isDragActive && "transition duration-500 scale-[1.05]"
       )}
     >

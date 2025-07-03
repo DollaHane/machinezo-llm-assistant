@@ -345,7 +345,7 @@ class ListingsController extends Controller
         try {
 
             // UPDATE SWX7neDE_posts
-            DB::table('SWX7neDE_posts')->update([
+            DB::table('SWX7neDE_posts')->where('ID', $listing_id)->update([
                 'post_author' => 1,
                 'post_content' => $row['description'],
                 'post_title' => $row['title'],

@@ -8,6 +8,7 @@ export const ListingsColumns: ColumnDef<Listing>[] = [
     {
         accessorKey: 'id',
         header: 'ID',
+        cell: ({ row }) => <p className="pl-3">{row.original.id}</p>,
     },
     {
         accessorKey: 'title',

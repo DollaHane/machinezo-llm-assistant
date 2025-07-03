@@ -1,12 +1,17 @@
 'use client';
 
+import Folder from '@/assets/FOLDER.png';
 import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 import { UploadValidationRequest, uploadValidation } from '@/lib/validators/uploadValidation';
+import { ValidationError } from '@/types/zod-error';
 import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
-import { Loader2 } from 'lucide-react';
+import { AlertTriangle, Check, FileSearch, Loader2, X } from 'lucide-react';
 import Papa from 'papaparse';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { ZodError } from 'zod';
+import CsvValidationErrors from './csv-validation-errors';
 import { Button } from './ui/button';
 import DropZone from './ui/dropzone';
 import { Input } from './ui/input';
@@ -14,8 +19,13 @@ import { Input } from './ui/input';
 export default function DashboardDropzone() {
     const [csvData, setCsvData] = useState<UploadValidationRequest>([]);
     const [disable, setDisabled] = useState<boolean>(true);
+    const [uploadStatus, setUploadStatus] = useState<string>('WAITING');
+    const [uploadSuccess, setUploadSuccess] = useState<boolean>(false);
+    const [uploadFailed, setUploadFailed] = useState<boolean>(false);
+    const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
     const clickRef = useRef<null | HTMLDivElement>(null);
     const inputRef = useRef<null | HTMLInputElement>(null);
+    const dataStages = ['WAITING', 'VALID', 'INVALID'];
 
     // HANDLE FILE UPLOAD
     function handleFiles(event: any) {
@@ -35,12 +45,17 @@ export default function DashboardDropzone() {
         });
     }
 
-    const { mutate: createListing, isPending } = useMutation({
+    const {
+        mutate: createListing,
+        isPending,
+        isSuccess,
+    } = useMutation({
         mutationFn: async (payload: UploadValidationRequest) => {
             setDisabled(true);
             await axios.post('V2/listings', payload);
         },
         onError: (error: AxiosError) => {
+            setUploadFailed(true);
             setCsvData([]);
             if (error.response?.status === 400) {
                 return toast({
@@ -146,11 +161,31 @@ export default function DashboardDropzone() {
                     additional_9: row[32],
                     additional_10: row[33],
                 }));
-                console.log('data', data);
-                const validatedData = uploadValidation.parse(data);
-                console.log('data:', validatedData);
-                setCsvData(validatedData);
-                setDisabled(false);
+
+                try {
+                    const validatedData = uploadValidation.parse(data);
+                    setCsvData(validatedData);
+                    setUploadStatus(dataStages[1]);
+                    setDisabled(false);
+                } catch (error) {
+                    if (error instanceof ZodError) {
+                        setUploadStatus(dataStages[2]);
+                        const formattedErrors = error.errors.map((e) => ({
+                            path: e.path.join('.'),
+                            message: e.message,
+                        }));
+
+                        setValidationErrors(formattedErrors);
+
+                        console.error('Validation Errors:', formattedErrors);
+
+                        toast({
+                            title: 'Validation Error',
+                            description: `Found ${formattedErrors.length} error(s). Please fix them in your CSV.`,
+                            variant: 'destructive',
+                        });
+                    }
+                }
             },
         });
     }, []);
@@ -160,6 +195,10 @@ export default function DashboardDropzone() {
     }
 
     function clear() {
+        setUploadStatus(dataStages[0]);
+        setUploadSuccess(false);
+        setUploadFailed(false);
+        setValidationErrors([]);
         setCsvData([]);
         return toast({
             title: 'Cleared',
@@ -179,19 +218,105 @@ export default function DashboardDropzone() {
 
     return (
         <div className="flex min-h-screen w-full flex-col items-center py-5 md:py-10">
+            <div className="mb-5 flex w-2/3 min-w-[300px] flex-col gap-3 text-sm sm:flex-row">
+                {/* STEP 1 */}
+                <div
+                    className={cn(
+                        'flex w-full flex-row items-center justify-between rounded-lg border border-muted p-2 text-muted-foreground/50 shadow-md',
+                        uploadStatus === dataStages[1] && 'text-primary',
+                    )}
+                >
+                    <div className="flex items-center justify-start gap-5">
+                        <div
+                            className={cn(
+                                'flex size-6 items-center justify-center rounded-full bg-muted',
+                                uploadStatus === dataStages[1] && 'bg-green-500 text-white',
+                                uploadStatus === dataStages[2] && 'bg-red-500 text-white',
+                            )}
+                        >
+                            <p>1</p>
+                        </div>
+                        <p className="truncate">Processed</p>
+                    </div>
+                    <div className="flex items-center justify-center">
+                        {uploadStatus === dataStages[0] && <Check className="text-muted" />}
+                        {uploadStatus === dataStages[1] && <Check className="text-green-500" />}
+                        {uploadStatus === dataStages[2] && <X className="text-red-500" />}
+                    </div>
+                </div>
+
+                {/* STEP 2 */}
+                <div
+                    className={cn(
+                        'flex w-full flex-row items-center justify-between rounded-lg border border-muted p-2 text-muted-foreground/50 shadow-md',
+                        uploadStatus === dataStages[1] && 'text-primary',
+                    )}
+                >
+                    <div className="flex items-center justify-start gap-5">
+                        <div
+                            className={cn(
+                                'flex size-6 items-center justify-center rounded-full bg-muted',
+                                uploadStatus === dataStages[1] && 'bg-green-500 text-white',
+                                uploadStatus === dataStages[2] && 'bg-orange-500 text-white',
+                            )}
+                        >
+                            <p>2</p>
+                        </div>
+                        <p className="truncate">Valid</p>
+                    </div>
+                    <div className="flex items-center justify-center">
+                        {uploadStatus === dataStages[0] && <Check className="text-muted" />}
+                        {uploadStatus === dataStages[1] && <Check className="text-green-500" />}
+                        {uploadStatus === dataStages[2] && <AlertTriangle className="text-orange-500" />}
+                    </div>
+                </div>
+
+                {/* STEP 3 */}
+                <div
+                    className={cn(
+                        'flex w-full flex-row items-center justify-between rounded-lg border border-muted p-2 text-muted-foreground/50 shadow-md',
+                        uploadSuccess && 'text-primary',
+                        isPending && 'text-primary',
+                    )}
+                >
+                    <div className="flex items-center justify-start gap-5">
+                        <div
+                            className={cn(
+                                'flex size-6 items-center justify-center rounded-full bg-muted',
+                                uploadSuccess && 'bg-green-500 text-white',
+                                uploadFailed && 'bg-red-500 text-white',
+                            )}
+                        >
+                            <p>3</p>
+                        </div>
+                        {uploadFailed ? <p className="truncate text-primary">Failed</p> : <p className="truncate">Complete</p>}
+                    </div>
+                    <div className="flex items-center justify-center">
+                        {uploadFailed ? (
+                            <X className="text-red-500" />
+                        ) : isPending ? (
+                            <Loader2 className="animate-spin" />
+                        ) : (
+                            <Check className={cn('text-muted', uploadSuccess && 'text-green-500')} />
+                        )}
+                    </div>
+                </div>
+            </div>
             <DropZone onDragStateChange={onDragStateChange} onFilesDrop={onFilesDrop}>
                 {isPending ? (
                     <div className="flex size-full flex-col items-center justify-center">
-                        <Loader2 className="size-16 animate-spin" />
-                        <p className="mt-5 animate-pulse text-muted-foreground">Processing data and generating content.</p>
+                        <Loader2 className="size-20 animate-spin text-muted-foreground" />
                     </div>
                 ) : (
                     <>
+                        <img src={Folder} alt="csv-folder" className="w-20" />
+                        <h2 className="text-center text-lg font-semibold">Choose a csv file or drag and drop it here</h2>
                         <div
                             ref={clickRef}
-                            className="absolute top-2 left-2 flex h-8 w-28 items-center justify-center rounded-full border border-muted-foreground bg-muted text-center transition duration-200 hover:scale-[0.97] hover:border-blue-500"
+                            className="flex h-10 cursor-pointer items-center justify-center gap-3 rounded-md border border-muted-foreground/50 bg-muted p-3 text-center shadow-md transition duration-200 hover:scale-[0.97] hover:border-blue-500"
                         >
-                            <p className="cursor-pointer text-primary">Browse..</p>
+                            <FileSearch />
+                            <p>Browse..</p>
                             <Input
                                 id="input"
                                 ref={inputRef}
@@ -202,14 +327,10 @@ export default function DashboardDropzone() {
                                 onChangeCapture={handleFiles}
                             ></Input>
                         </div>
-                        <h2 className="text-2xl font-semibold">Drop CSV Here</h2>
-                        {csvData && csvData.length > 0 ? (
-                            <p className="flex h-8 w-60 items-center justify-center gap-2 rounded-full border-transparent text-center font-semibold italic">
+                        {validationErrors.length > 0 && <CsvValidationErrors errors={validationErrors} />}
+                        {csvData && csvData.length > 0 && (
+                            <p className="absolute bottom-3 mx-auto flex h-8 w-60 items-center justify-center gap-2 rounded-full border-transparent text-center text-muted-foreground">
                                 <span>{csvData?.length} entries parsed</span>
-                            </p>
-                        ) : (
-                            <p className="flex h-8 w-60 items-center justify-center rounded-full border-transparent text-center text-muted-foreground italic">
-                                No file selected
                             </p>
                         )}
                     </>

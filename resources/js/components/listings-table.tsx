@@ -3,9 +3,9 @@
 import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useState } from 'react';
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 
 interface DataTableProps<TData, TValue> {
@@ -60,7 +60,7 @@ export function ListingsTable<TData, TValue>({ columns, data }: DataTableProps<T
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <div className="rounded-md border">
+            <div className="rounded-2xl p-2 shadow-md">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -78,12 +78,21 @@ export function ListingsTable<TData, TValue>({ columns, data }: DataTableProps<T
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
-                                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                                <TableRow
+                                    key={row.id}
+                                    data-state={row.getIsSelected() && 'selected'}
+                                    className="group relative hover:cursor-pointer hover:bg-gradient-to-r hover:from-blue-200 hover:via-blue-100/50 hover:to-background dark:hover:from-blue-900 dark:hover:via-blue-800/50 dark:hover:to-background"
+                                >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id} className="max-w-32 truncate">
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </TableCell>
                                     ))}
+                                    <div
+                                        className={cn(
+                                            'absolute left-0 hidden h-full w-2 rounded-tr-xl rounded-br-xl bg-blue-500 shadow-2xl shadow-blue-500 group-hover:block',
+                                        )}
+                                    />
                                 </TableRow>
                             ))
                         ) : (
